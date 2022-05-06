@@ -157,9 +157,12 @@ def loopy_snec_mcmc(SN_name, n_steps, n_walkers, output_dir, parameter_ranges, r
         # concatenate the second stage sampler to the first one
         sampler_chain = np.concatenate((sampler_chain, sampler_second_step.chain), axis=1)
         sampler_chain_flat = np.concatenate((sampler_chain_flat, sampler_second_step.get_chain(flat=True)), axis=0)
+        flat_sampler_no_burnin = sampler_chain_flat[n_walkers * burn_in:, :]
         final_step = 2 * n_steps - 1
 
     # TODO change name of function - its for any plots (not only lum)
+    mcmc_snec.chain_plots(sampler_chain, parameter_ranges, res_dir, burn_in)
+    mcmc_snec.corner_plot(flat_sampler_no_burnin, parameter_ranges, res_dir)
     mcmc_snec.plot_lightcurve_with_fit(sampler_chain, SN_data_all, parameter_ranges,
                                        run_type, res_dir, SN_name, 0, Tthreshold, normalization)
     mcmc_snec.plot_lightcurve_with_fit(sampler_chain, SN_data_all, parameter_ranges,
