@@ -57,7 +57,7 @@ def load_model(Mzams, Ni, E, R, K, Mix, data_type):
            '_R' + str(R) + \
            '_K' + str(K)
     if data_type == 'lum':
-        modelpath = os.path.join('..', 'all_dat_combined_after_breakout', name, 'lum_observed.dat')
+        modelpath = os.path.join('SNEC_models', name, 'lum_observed.dat')
         if os.stat(modelpath).st_size < 10 ** 5:
             return 'failed SN'
         else:
@@ -67,7 +67,7 @@ def load_model(Mzams, Ni, E, R, K, Mix, data_type):
             snec_model = np.interp(interp_days, time_col, snec_model['Lum'])
             return snec_model
     elif data_type == 'veloc':
-        modelpath = os.path.join('..', 'all_dat_combined_after_breakout', name, 'vel_Fe.dat')
+        modelpath = os.path.join('SNEC_models', name, 'vel_Fe.dat')
         if os.stat(modelpath).st_size < 10 ** 4:
             return 'failed SN'
         else:
@@ -77,7 +77,7 @@ def load_model(Mzams, Ni, E, R, K, Mix, data_type):
             snec_model = np.interp(interp_days, time_col, snec_model['vel'])
             return snec_model
     elif data_type == 'temp':
-        modelpath = os.path.join('..', 'all_dat_combined_after_breakout', name, 'T_eff.dat')
+        modelpath = os.path.join('SNEC_models', name, 'T_eff.dat')
         if os.stat(modelpath).st_size < 10 ** 5:
             return 'failed SN'
         snec_model = pd.read_csv(modelpath)
@@ -86,8 +86,8 @@ def load_model(Mzams, Ni, E, R, K, Mix, data_type):
         snec_model = np.interp(interp_days, time_col, snec_model['temp'])
         return snec_model
     elif data_type == 'mag':
-        modelpath = os.path.join('..', 'all_dat_combined_after_breakout', name, 'magnitudes_pys.dat')
-        lumpath = os.path.join('..', 'all_dat_combined_after_breakout', name, 'lum_observed.dat')
+        modelpath = os.path.join('SNEC_models', name, 'magnitudes_pys.dat')
+        lumpath = os.path.join('SNEC_models', name, 'lum_observed.dat')
         if os.stat(lumpath).st_size < 10 ** 5:
             return 'failed SN'
         else:
@@ -462,7 +462,7 @@ def get_args_from_file(result_path, ax):
     data_lum = mcmc_snec.import_lum(SN_name)
     #data_veloc = mcmc_snec.import_veloc(SN_name)
     #data_mag = mcmc_snec.import_mag(SN_name)
-    #data = {'lum': data_lum, 'mag': data_mag, 'veloc': data_veloc}
+    #SNEC_models = {'lum': data_lum, 'mag': data_mag, 'veloc': data_veloc}
     data = {'lum': data_lum}
     flat_sampler_path = os.path.join(result_path, 'flat_sampler.csv')
     flat_sampler_noburnin = pd.read_csv(flat_sampler_path,

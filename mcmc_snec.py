@@ -75,7 +75,7 @@ def load_model(Mzams, Ni, E, R, K, Mix, data_type):
            '_R' + str(R) + \
            '_K' + str(K)
     if data_type == 'lum':
-        modelpath = os.path.join('..', 'all_dat_combined_after_breakout', name, 'lum_observed.dat')
+        modelpath = os.path.join('SNEC_models', name, 'lum_observed.dat')
         if os.stat(modelpath).st_size < 10 ** 5:
             return 'failed SN'
         else:
@@ -85,7 +85,7 @@ def load_model(Mzams, Ni, E, R, K, Mix, data_type):
             snec_model = np.interp(interp_days, time_col, snec_model['Lum'])
             return snec_model
     elif data_type == 'veloc':
-        modelpath = os.path.join('..', 'all_dat_combined_after_breakout', name, 'vel_Fe.dat')
+        modelpath = os.path.join('SNEC_models', name, 'vel_Fe.dat')
         if os.stat(modelpath).st_size < 10 ** 4:
             return 'failed SN'
         else:
@@ -95,7 +95,7 @@ def load_model(Mzams, Ni, E, R, K, Mix, data_type):
             snec_model = np.interp(interp_days, time_col, snec_model['vel'])
             return snec_model
     elif data_type == 'temp':
-        modelpath = os.path.join('..', 'all_dat_combined_after_breakout', name, 'T_eff.dat')
+        modelpath = os.path.join('SNEC_models', name, 'T_eff.dat')
         if os.stat(modelpath).st_size < 10 ** 5:
             return 'failed SN'
         snec_model = pd.read_csv(modelpath)
@@ -104,8 +104,8 @@ def load_model(Mzams, Ni, E, R, K, Mix, data_type):
         snec_model = np.interp(interp_days, time_col, snec_model['temp'])
         return snec_model
     elif data_type == 'mag':
-        modelpath = os.path.join('..', 'all_dat_combined_after_breakout', name, 'magnitudes_pys.dat')
-        lumpath = os.path.join('..', 'all_dat_combined_after_breakout', name, 'lum_observed.dat')
+        modelpath = os.path.join('SNEC_models', name, 'magnitudes_pys.dat')
+        lumpath = os.path.join('SNEC_models', name, 'lum_observed.dat')
         if os.stat(lumpath).st_size < 10 ** 5:
             return 'failed SN'
         else:
@@ -415,13 +415,10 @@ def emcee_fit_params(data, n_walkers, n_steps, ranges_dict, fitting_type, csm, T
     return sampler
 
 
-def corner_plot(sampler_chain, ranges_dict, output_dir):
-    s = list(sampler_chain.shape[1:])
-    s[0] = np.prod(sampler_chain.shape[:2])
-    sampler_chain_flat = sampler_chain.reshape(s)
+def corner_plot(flat_sampler_no_burnin, ranges_dict, output_dir):
     labels = list(ranges_dict.keys())
     corner_range = [1.] * len(labels)
-    f_corner = corner.corner(sampler_chain_flat, labels=labels, range=corner_range)
+    f_corner = corner.corner(flat_sampler_no_burnin, labels=labels, range=corner_range)
     f_corner.savefig(os.path.join(output_dir, 'corner_plot.png'))
 
 
@@ -461,7 +458,6 @@ def get_param_results_dict(sampler_chain, ranges_dict, step, output_dir):
         avg = np.mean(last_results)
         sigma_lower, sigma_upper = np.percentile(last_results, [16, 84])
         dict[param] = avg
-        # dict[params[i]+'_all_walkers'] = last_results
         dict[param +'_lower'] = avg - sigma_lower
         dict[param + '_upper'] = sigma_upper - avg
     with open(os.path.join(output_dir, 'final_results.csv'), 'w') as f:  # Just use 'w' mode in 3.x
@@ -677,13 +673,13 @@ def plot_lightcurve_with_fit(sampler_chain, data, ranges_dict, fitting_type, out
 
 
 def import_lum(SN_name):
-    lum_path = os.path.join('results', SN_name + '_lum')
+    lum_path = os.path.join('SN_data', SN_name + '_lum')
     data_lum = pd.read_csv(lum_path)
     return data_lum
 
 
 def import_veloc(SN_name):
-    veloc_path = os.path.join('results', SN_name + '_veloc')
+    veloc_path = os.path.join('SN_data', SN_name + '_veloc')
     data_veloc = pd.read_csv(veloc_path)
     data_veloc.rename({'absorption_mean_velocity': 'veloc', 'absorption_std_velocity': 'dveloc'}, axis='columns',
                       inplace=True)
@@ -695,7 +691,7 @@ def import_veloc(SN_name):
 
 
 def import_mag(SN_name):
-    mag_path = os.path.join('results', SN_name + '_mag')
+    mag_path = os.path.join('SN_data', SN_name + '_mag')
     data_filepath = os.path.join(mag_path)
     data_mag = pd.read_csv(data_filepath, usecols=['dmag', 'filter', 'abs_mag', 't_from_discovery'])
     filters = list(data_mag['filter'].unique())

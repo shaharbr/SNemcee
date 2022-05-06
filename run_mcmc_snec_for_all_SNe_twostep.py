@@ -10,7 +10,7 @@ date = '2022_02_23'
 n_steps = 50
 
 def loopy_snec_mcmc(SN_name, parameter_ranges, run_type, priors_carryover=None):
-    distances = pd.read_csv(os.path.join('results', 'distances.csv'))
+    distances = pd.read_csv(os.path.join('SN_data', 'distances.csv'))
     distance = float(distances.loc[distances['SN_name'] == SN_name]['distance'])
     distance_err = float(distances.loc[distances['SN_name'] == SN_name]['distance_err'])
     sigma_S = 2 * distance_err / distance
@@ -34,15 +34,15 @@ def loopy_snec_mcmc(SN_name, parameter_ranges, run_type, priors_carryover=None):
                                 res_dir)
     SN_data_all = {}
     if 'lum' in run_type:
-        # import SN bolometric lum data
+        # import SN bolometric lum SNEC_models
         data_lum = mcmc_snec.import_lum(SN_name)
         SN_data_all['lum'] = data_lum
     if 'veloc' in run_type:
-        # import SN photospheric velocities data
+        # import SN photospheric velocities SNEC_models
         data_veloc = mcmc_snec.import_veloc(SN_name)
         SN_data_all['veloc'] = data_veloc
     if 'mag' in run_type:
-        # import SN mag data
+        # import SN mag SNEC_models
         data_mag = mcmc_snec.import_mag(SN_name)
         SN_data_all['mag'] = data_mag
 
@@ -74,7 +74,7 @@ def loopy_snec_mcmc(SN_name, parameter_ranges, run_type, priors_carryover=None):
             sampler_first_step_chain_CSM[:, :, i + 2] = sampler_first_step_chain[:, :, i]
 
     """
-    second step: fit to K and R, with priors according to results from step one.
+    second step: fit to K and R, with priors according to SN_data from step one.
     """
 
     flat_sampler_no_burnin = pd.DataFrame(sampler_first_step_chain_flat_CSM[n_walkers * burn_in:, :])
