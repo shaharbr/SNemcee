@@ -100,11 +100,11 @@ def lum_veloc_vs_mag_veloc(SN_name, results_dir, output_dir, LumTthresh=False):
 def lum_veloc_onestep_vs_twostep(SN_name, results_dir, output_dir):
     fig, axs = plt.subplots(2, 3, sharey='row', figsize=(20, 12))
 
-    onestep_name = SN_name + '_lum-veloc_csm-with_' + SN_name
+    onestep_name = SN_name + '_lum-veloc_csm-with_normalizedFalse_TreshLumFalse'
     onestep_path = os.path.join(results_dir, onestep_name)
-    twostep_priorNone_name = SN_name + '_lum-veloc_twostep_priorsNone_' + SN_name
+    twostep_priorNone_name = SN_name + '_lum_csm-twostep_normalizedFalse_TreshLumFalse'
     twostep_priorNone_path = os.path.join(results_dir, twostep_priorNone_name)
-    twostep_priorTrue_name = SN_name + '_lum-veloc_twostep_priorsTrue_' + SN_name
+    twostep_priorTrue_name = SN_name + '_lum_csm-twostep-carryover_normalizedFalse_TreshLumFalse'
     twostep_priorTrue_path = os.path.join(results_dir, twostep_priorTrue_name)
 
 
