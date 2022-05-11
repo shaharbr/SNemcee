@@ -10,14 +10,23 @@ Datetime <br>
 scipy <br>
 
 
-**Input data:** <br>
-Supernova data files (observations) should be stored in the directory ‘/results’, with the following names: <br>
+**Input supernova data:** <br>
+Supernova data files (observations) should be stored in the directory ‘SN_data’, with the following names: <br>
 <SN_name>_veloc <br>
 <SN_name>_mag <br>
 <SN_name>_lum <br>
 (See example files for expected format) <br>
 
-In addition, there should be a table in ‘/results’ that contains the distance (in Mpc) <br>
+In addition, there should be a table in ‘SN_data’ that contains the distance (in Mpc) <br>
+
+
+**SNEC model grid:** <br>
+Should be downloaded from:
+https://drive.google.com/file/d/1Bm3pMe7uvuVMrMSMlHCIuw909pMuEIqL/view?usp=sharing
+
+And then added to the main directory and extracted using
+tar -xf SNEC_models.tar.gz
+The result should be the directory SNemcee/SNEC_models which contains 2,469 sub-directories with names like 'M9.0_Ni0.001_E0.1_Mix2.0_R1000_K10'
 
 **Running SNemcee:** <br>
 To run the SNemcee program on your SN of choice, use command: <br>

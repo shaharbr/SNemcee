@@ -206,24 +206,24 @@ def main(argv):
     print('steps:', n_steps)
     print('walkers:', n_walkers)
     print('output directory:', output_dir)
-    # if os.path.exists(os.path.join('SN_data', SN_name + '_veloc')):
-    #     for normalization in [True, False]:
-    #         for LumT in [False, True]:
-    #             loopy_snec_mcmc(SN_name, n_steps, n_walkers, output_dir,
-    #                             parameter_ranges, 'lum-veloc',
-    #                             csm='with',
-    #                             Tthreshold={'lum': LumT, 'mag': True, 'veloc': True},
-    #                             normalization=normalization,
-    #                             nonuniform_priors=None)
-    #     if os.path.exists(os.path.join('SN_data', SN_name + '_mag')):
-    #         for normalization in [True, False]:
-    #             for LumT in [False, True]:
-    #                 loopy_snec_mcmc(SN_name, n_steps, n_walkers, output_dir,
-    #                                 parameter_ranges, 'mag-veloc',
-    #                                 csm='with',
-    #                                 Tthreshold={'lum': LumT, 'mag': True, 'veloc': True},
-    #                                 normalization=normalization,
-    #                                 nonuniform_priors=None)
+    if os.path.exists(os.path.join('SN_data', SN_name + '_veloc')):
+        for normalization in [True, False]:
+            for LumT in [False, True]:
+                loopy_snec_mcmc(SN_name, n_steps, n_walkers, output_dir,
+                                parameter_ranges, 'lum-veloc',
+                                csm='with',
+                                Tthreshold={'lum': LumT, 'mag': True, 'veloc': True},
+                                normalization=normalization,
+                                nonuniform_priors=None)
+        if os.path.exists(os.path.join('SN_data', SN_name + '_mag')):
+            for normalization in [True, False]:
+                for LumT in [False, True]:
+                    loopy_snec_mcmc(SN_name, n_steps, n_walkers, output_dir,
+                                    parameter_ranges, 'mag-veloc',
+                                    csm='with',
+                                    Tthreshold={'lum': LumT, 'mag': True, 'veloc': True},
+                                    normalization=normalization,
+                                    nonuniform_priors=None)
     for csm in ['twostep', 'twostep-carryover', 'with', 'without']:
         loopy_snec_mcmc(SN_name, n_steps, n_walkers, output_dir,
                         parameter_ranges, 'lum',
