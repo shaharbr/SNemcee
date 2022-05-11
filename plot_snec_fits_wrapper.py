@@ -9,10 +9,10 @@ import sys, getopt
 def lum_wCSM_vs_woCSM(SN_name, results_dir, output_dir):
     fig, axs = plt.subplots(1, 2, sharey='row', figsize=(20, 12))
 
-    lum_csmTrue_name = SN_name + '_lum_csmTrue_normalizedFalse_TreshLumFalse'
+    lum_csmTrue_name = SN_name + '_lum_csm-with_normalizedFalse_TreshLumFalse'
     lum_csmTrue_path = os.path.join(results_dir, lum_csmTrue_name)
 
-    lum_csmFalse_name = SN_name + '_lum_csmFalse_normalizedFalse_TreshLumFalse'
+    lum_csmFalse_name = SN_name + '_lum_csm-without_normalizedFalse_TreshLumFalse'
     lum_csmFalse_path = os.path.join(results_dir, lum_csmFalse_name)
 
     plot_snec_fits.plot_result_fit(lum_csmTrue_path, 'lum', axs[0])
@@ -34,11 +34,11 @@ def lum_wCSM_vs_woCSM(SN_name, results_dir, output_dir):
 def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, results_dir, output_dir):
     fig, axs = plt.subplots(2, 3, sharey='row', figsize=(20, 12))
 
-    lum_name = SN_name + '_lum_csmTrue_normalizedFalse_TreshLumFalse'
+    lum_name = SN_name + '_lum_csm-with_normalizedFalse_TreshLumFalse'
     lum_path = os.path.join(results_dir, lum_name)
-    lum_veloc_name = SN_name + '_lum-veloc_csmTrue_normalizedFalse_TreshLumFalse_TreshVelocTrue'
+    lum_veloc_name = SN_name + '_lum-veloc_csm-with_normalizedFalse_TreshLumFalse_TreshVelocTrue'
     lum_veloc_path = os.path.join(results_dir, lum_veloc_name)
-    lum_veloc_normalized_name = SN_name + '_lum-veloc_csmTrue_normalizedTrue_TreshLumFalse_TreshVelocTrue'
+    lum_veloc_normalized_name = SN_name + '_lum-veloc_csm-with_normalizedTrue_TreshLumFalse_TreshVelocTrue'
     lum_veloc_normalized_path = os.path.join(results_dir, lum_veloc_normalized_name)
 
     plot_snec_fits.plot_result_fit(lum_path, 'lum', axs[0, 0])
@@ -66,12 +66,12 @@ def lum_veloc_vs_mag_veloc(SN_name, results_dir, output_dir, LumTthresh=False):
     fig, axs = plt.subplots(3, 2, sharey='row', figsize=(20, 12))
 
     if LumTthresh:
-        lum_veloc_name = SN_name + '_lum-veloc_csmTrue_normalizedFalse_TreshLumTrue_TreshVelocTrue'
+        lum_veloc_name = SN_name + '_lum-veloc_csm-with_normalizedFalse_TreshLumTrue_TreshVelocTrue'
     else:
-        lum_veloc_name = SN_name + '_lum-veloc_csmTrue_normalizedFalse_TreshLumFalse_TreshVelocTrue'
+        lum_veloc_name = SN_name + '_lum-veloc_csm-with_normalizedFalse_TreshLumFalse_TreshVelocTrue'
     lum_veloc_path = os.path.join(results_dir, lum_veloc_name)
 
-    mag_veloc_name = SN_name + '_mag-veloc_csmTrue_normalizedFalse_TreshMagTrue_TreshVelocTrue'
+    mag_veloc_name = SN_name + '_mag-veloc_csm-with_normalizedFalse_TreshMagTrue_TreshVelocTrue'
     mag_veloc_path = os.path.join(results_dir, mag_veloc_name)
 
     plot_snec_fits.plot_result_fit(lum_veloc_path, 'lum', axs[0, 0])
@@ -100,7 +100,7 @@ def lum_veloc_vs_mag_veloc(SN_name, results_dir, output_dir, LumTthresh=False):
 def lum_veloc_onestep_vs_twostep(SN_name, results_dir, output_dir):
     fig, axs = plt.subplots(2, 3, sharey='row', figsize=(20, 12))
 
-    onestep_name = 'lum-veloc_csmTrue_' + SN_name
+    onestep_name = 'lum-veloc_csm-with_' + SN_name
     onestep_path = os.path.join(results_dir, onestep_name)
     twostep_priorNone_name = 'lum-veloc_twostep_priorsNone_' + SN_name
     twostep_priorNone_path = os.path.join(results_dir, twostep_priorNone_name)

@@ -59,7 +59,7 @@ Record of the input arguments used in that run <br>
 **Running script for comparison plots:** <br>
 After running run_mcmc_snec_for_all_SNe.py, you can use plot_snec_fits_wrapper.py to plot paper-ready figures - for example, to compare the effect of different likelihood functions (different fitting schemes), or the inclusion of CSM, on the posterior distributions: <br>
 
-python3 plot_snec_fits_wrapper.py -S <SN name> -s <number of steps> -t <type of figure*> -o <output directory> <br>
+python3 plot_snec_fits_wrapper.py -S <SN name> -s <number of steps> -t <type of figure> -o <output directory> <br>
 
 **possible “types of figure”:** <br>
 csm <br>
