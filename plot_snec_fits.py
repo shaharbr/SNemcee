@@ -281,8 +281,7 @@ def calc_mag_likelihood(theta, data_dict, surrounding_values, Tthreshold_dict, n
         return - np.inf
 
 
-def plot_lum_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_dict, normalization):
-    data = data_dict['lum']
+def plot_lum_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_dict, normalization):
     Tthreshold = Tthreshold_dict['lum']
     data_x = data['t_from_discovery']
     data_y = data['Lum']
@@ -326,8 +325,7 @@ def plot_lum_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, Tthresh
     return ax
 
 
-def plot_veloc_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_dict, normalization):
-    data = data_dict['veloc']
+def plot_veloc_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_dict, normalization):
     Tthreshold = Tthreshold_dict['veloc']
     data_x = data['t_from_discovery']
     data_y = data['veloc']
@@ -362,8 +360,7 @@ def plot_veloc_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, Tthre
     return ax
 
 
-def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_dict, normalization):
-    data = data_dict['mag']
+def plot_mag_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_dict, normalization):
     Tthreshold = Tthreshold_dict['mag']
     filters = list(data['filter'].unique())
     data_x = data['t_from_discovery']
@@ -445,7 +442,7 @@ def overlay_corner_plot(result_paths_list, output_dir, name_list, filename):
     # f_corner.savefig(os.path.join(output_dir, 'corner_plot.png'))
 
 
-def get_args_from_file(result_path, ax):
+def get_args_from_file(result_path, ax, data_type):
     run_params_path = os.path.join(result_path, 'run_parameters.csv')
     run_params = pd.read_csv(run_params_path, index_col=0).T
     ranges_dict = import_ranges(run_params.columns.values, run_params)
@@ -459,11 +456,12 @@ def get_args_from_file(result_path, ax):
     Tthreshold_mag = run_params.iloc[0]['Tthreshold_mag']
     Tthreshold_veloc = run_params.iloc[0]['Tthreshold_veloc']
     Tthreshold_dict = {'lum': Tthreshold_lum, 'veloc': Tthreshold_veloc, 'mag': Tthreshold_mag}
-    data_lum = mcmc_snec.import_lum(SN_name)
-    #data_veloc = mcmc_snec.import_veloc(SN_name)
-    #data_mag = mcmc_snec.import_mag(SN_name)
-    #SNEC_models = {'lum': data_lum, 'mag': data_mag, 'veloc': data_veloc}
-    data = {'lum': data_lum}
+    if data_type == 'lum':
+        data = mcmc_snec.import_lum(SN_name)
+    elif data_type == 'veloc':
+        data = mcmc_snec.import_veloc(SN_name)
+    elif data_type == 'mag':
+        data = mcmc_snec.import_mag(SN_name)
     flat_sampler_path = os.path.join(result_path, 'flat_sampler.csv')
     flat_sampler_noburnin = pd.read_csv(flat_sampler_path,
                                         names=params,
@@ -473,12 +471,14 @@ def get_args_from_file(result_path, ax):
 
 
 def plot_result_fit(result_path, plot_types, ax):
-    args = get_args_from_file(result_path, ax)
     if 'lum' in plot_types:
+        args = get_args_from_file(result_path, ax, 'lum')
         plot_lum_with_fit(*args)
     if 'veloc' in plot_types:
+        args = get_args_from_file(result_path, ax, 'veloc')
         plot_veloc_with_fit(*args)
     if 'mag' in plot_types:
+        args = get_args_from_file(result_path, ax, 'mag')
         plot_mag_with_fit(*args)
     return ax
 
