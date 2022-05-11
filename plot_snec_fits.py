@@ -193,8 +193,7 @@ def temp_thresh_cutoff(requested_theta, surrounding_values, models, data_x):
     return max_x
 
 
-def calc_lum_likelihood(theta, data_dict, surrounding_values, Tthreshold_dict, normalization):
-    data = data_dict['lum']
+def calc_lum_likelihood(theta, data, surrounding_values, Tthreshold_dict, normalization):
     Tthreshold = Tthreshold_dict['lum']
     data_x = data['t_from_discovery']
     data_x_moved = data_x - theta[7]
@@ -220,8 +219,7 @@ def calc_lum_likelihood(theta, data_dict, surrounding_values, Tthreshold_dict, n
         return - np.inf
 
 
-def calc_veloc_likelihood(theta, data_dict, surrounding_values, Tthreshold_dict, normalization):
-    data = data_dict['veloc']
+def calc_veloc_likelihood(theta, data, surrounding_values, Tthreshold_dict, normalization):
     Tthreshold = Tthreshold_dict['veloc']
     data_x = data['t_from_discovery']
     data_x_moved = data_x - theta[7]
@@ -245,8 +243,7 @@ def calc_veloc_likelihood(theta, data_dict, surrounding_values, Tthreshold_dict,
         return - np.inf
 
 
-def calc_mag_likelihood(theta, data_dict, surrounding_values, Tthreshold_dict, normalization):
-    data = data_dict['mag']
+def calc_mag_likelihood(theta, data, surrounding_values, Tthreshold_dict, normalization):
     Tthreshold = Tthreshold_dict['mag']
     log_likeli = 0
     any_filter_data = False
@@ -308,7 +305,7 @@ def plot_lum_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_d
                 y_fit = y_fit * S
                 # y_fit_on_data_times = y_fit_on_data_times * S
                 ax.plot(x_plotting, np.log10(y_fit), alpha=0.1, color='purple')
-                log_likeli.append(calc_lum_likelihood(requested, data_dict, surrounding_values, Tthreshold_dict, normalization))
+                log_likeli.append(calc_lum_likelihood(requested, data, surrounding_values, Tthreshold_dict, normalization))
     log_likeli = np.mean(log_likeli)
     data_dy0 = np.log10(data_y + dy0) - np.log10(data_y)
     data_dy1 = np.log10(data_y + dy1) - np.log10(data_y)
@@ -350,7 +347,7 @@ def plot_veloc_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold
             #                                                data_x_moved)
             if not isinstance(y_fit, str):
                 ax.plot(x_plotting, y_fit, alpha=0.1, color='purple')
-                log_likeli.append(calc_veloc_likelihood(requested, data_dict, surrounding_values, Tthreshold_dict, normalization))
+                log_likeli.append(calc_veloc_likelihood(requested, data, surrounding_values, Tthreshold_dict, normalization))
     log_likeli = np.mean(log_likeli)
     # real observations for the SN
     ax.errorbar(data_x, data_y, yerr=data_dy, marker='o', linestyle='None', color='k')
@@ -389,7 +386,7 @@ def plot_mag_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_d
                     # multiply whole graph by scaling factor
                     y_fit[filt] = y_fit[filt] * S
                     ax.plot(x_plotting, y_fit[filt], color=colors[filt], alpha=0.1)
-                    log_likeli.append(calc_mag_likelihood(requested, data_dict, surrounding_values, Tthreshold_dict, normalization))
+                    log_likeli.append(calc_mag_likelihood(requested, data, surrounding_values, Tthreshold_dict, normalization))
     log_likeli = np.mean(log_likeli)
     for filt in filters:
         data_filt = data.loc[data['filter'] == filt]
