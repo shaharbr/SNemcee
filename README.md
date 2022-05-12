@@ -44,7 +44,7 @@ python3 run_mcmc_snec_for_all_SNe.py -S <SN name> -f <type of figure> -s <number
 -n normalization = True, False [default: False]<br>
 -Lt luminosity_threshold = True, False [default: False]<br>
 -p nonuniform_priors = None, <dictionary> [default: None]<br>
-
+ 
 
 
 By default, it will run with the following variations of mcmc_snec (can be changed by modifying the code): <br>
