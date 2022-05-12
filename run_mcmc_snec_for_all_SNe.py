@@ -32,7 +32,7 @@ K_range = [0, 10, 30, 60]
 T_range = [-5, 2]  # time shift from assumed day of explosion (days)
 parameter_ranges = {'Mzams': Mzams_range, 'Ni': Ni_range, 'E': E_final_range,
                     'R': R_range, 'K': K_range, 'Mix': Mix_range, 'S': [], 'T': T_range}
-
+time_now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 '''
 The function loopy_snec_mcmc imports the SNEC_models for the SN, and then runs
@@ -62,18 +62,15 @@ the output directory. Output files include:
 
 '''
 
-def loopy_snec_mcmc(SN_name, n_steps, n_walkers, output_dir, parameter_ranges, run_type, csm, Tthreshold, normalization, nonuniform_priors):
-    # default burn_in steps are 40% of total numebr of steps
-    burn_in = int(n_steps * 0.4)
+def loopy_snec_mcmc(SN_name, n_steps, burn_in, n_walkers, output_dir, parameter_ranges, run_type, csm, Tthreshold, normalization, nonuniform_priors):
     # calculate range for the scaling parameter, which is derived from the uncertainty in distance
     # (in Mpc, provided in the table distances.csv')
     distances = pd.read_csv(os.path.join('SN_data', 'distances.csv'))
     distance = float(distances.loc[distances['SN_name'] == SN_name]['distance'])
     distance_err = float(distances.loc[distances['SN_name'] == SN_name]['distance_err'])
     sigma_S = 2 * distance_err / distance
-    S_range = [1.0 - sigma_S, 1.0 + sigma_S]
-    parameter_ranges['S'] = [1.0 - sigma_S, 1.0 + sigma_S]
-    time_now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    S_range = [1.0 - 3 * sigma_S, 1.0 + 3 * sigma_S]
+    parameter_ranges['S'] = S_range
     filename = SN_name + '_' +  run_type + '_csm-' + str(csm) + '_' + 'normalized' + str(normalization)
     # TODO think about how user should provide the nonuniform_priors
     if nonuniform_priors is not None:
@@ -160,12 +157,11 @@ def loopy_snec_mcmc(SN_name, n_steps, n_walkers, output_dir, parameter_ranges, r
         flat_sampler_no_burnin = sampler_chain_flat[n_walkers * burn_in:, :]
         final_step = 2 * n_steps - 1
 
-    # TODO change name of function - its for any plots (not only lum)
     mcmc_snec.chain_plots(sampler_chain, parameter_ranges, res_dir, burn_in)
     mcmc_snec.corner_plot(flat_sampler_no_burnin, parameter_ranges, res_dir)
-    mcmc_snec.plot_lightcurve_with_fit(sampler_chain, SN_data_all, parameter_ranges,
+    mcmc_snec.plot_fit_with_data(sampler_chain, SN_data_all, parameter_ranges,
                                        run_type, res_dir, SN_name, 0, Tthreshold, normalization)
-    mcmc_snec.plot_lightcurve_with_fit(sampler_chain, SN_data_all, parameter_ranges,
+    mcmc_snec.plot_fit_with_data(sampler_chain, SN_data_all, parameter_ranges,
                                        run_type, res_dir, SN_name, final_step, Tthreshold, normalization)
     np.savetxt(os.path.join(res_dir, 'flat_sampler.csv'), sampler_chain_flat, delimiter=",")
 
@@ -177,15 +173,30 @@ arguments: SN name, number of steps, number of steps and name for output directo
 '''
 
 def main(argv):
-    SN_name = ""
-    n_steps = 0
-    n_walkers = 0
-    output_dir = ""
-    arg_help = "{0} -S <SN name> -s <number of steps> -w <number of walkers> -o <output directory>".format(argv[0])
+    SN_name = ''
+    fitting_type = 'lum'
+    n_steps = 500
+    burn_in = 300
+    n_walkers = 30
+    output_dir = 'output_'+time_now
+    csm = 'with'
+    normalization = False
+    LumThreshold = False
+    nonuniform_priors = None
+    arg_help = '{0} -S <SN name> -t <fitting_type> -s <number of steps> -b <burn-in steps> -w <number of walkers> -o <output directory>\n' \
+               'args:\n' \
+               '-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: lum] \n' \
+               '-c csm = with, without, twostep, twostep-carryover [default: with] \n' \
+               '-n normalization = True, False [default: False] \n' \
+               '-Lt luminosity_threshold = True, False [default: False] \n'\
+               '-p nonuniform_priors = None, <dictionary> [default: None] \n' \
+               ''.format(argv[0])
 
     try:
-        opts, args = getopt.getopt(argv[1:], "hS:s:w:o:", ["help", "SN=",
-                                                         "steps=", "walkers=", "output_dir="])
+        opts, args = getopt.getopt(argv[1:], "hS:s:t:w:b:o:c:n:Lt:p", ["help", "SN=", 'fitting_type='
+                                                                     "steps=", "burn_in=", "walkers=", "output_dir=",
+                                                                     "csm=", "normalization=", "luminosity threshold=",
+                                                                     "nonuniform_priors="])
     except:
         print(arg_help)
         sys.exit(2)
@@ -195,85 +206,44 @@ def main(argv):
             sys.exit(2)
         elif opt in ("-S", "--SN_name"):
             SN_name = arg
+        elif opt in ("-t", "--fitting_type"):
+            fitting_type = arg
         elif opt in ("-s", "--steps"):
             n_steps = int(arg)
+        elif opt in ("-b", "--burn_in"):
+            burn_in = arg
         elif opt in ("-w", "--walkers"):
             n_walkers = int(arg)
         elif opt in ("-o", "--output_dir"):
             output_dir = arg
+        elif opt in ("-c", "--csm"):
+            csm = arg
+        elif opt in ("-n", "--normalization"):
+            normalization = arg
+        elif opt in ("-Lt", "--luminosity_threshold"):
+            LumThreshold = arg
+        elif opt in ("-p", "--nonuniform_priors"):
+            nonuniform_priors = arg
 
     print('SN name:', SN_name)
+    print('fitting type:', fitting_type)
     print('steps:', n_steps)
     print('walkers:', n_walkers)
+    print('burn in:', burn_in)
     print('output directory:', output_dir)
-    if os.path.exists(os.path.join('SN_data', SN_name + '_veloc')):
-        for normalization in [True, False]:
-            for LumT in [False, True]:
-                loopy_snec_mcmc(SN_name, n_steps, n_walkers, output_dir,
-                                parameter_ranges, 'lum-veloc',
-                                csm='with',
-                                Tthreshold={'lum': LumT, 'mag': True, 'veloc': True},
-                                normalization=normalization,
-                                nonuniform_priors=None)
-        if os.path.exists(os.path.join('SN_data', SN_name + '_mag')):
-            for normalization in [True, False]:
-                for LumT in [False, True]:
-                    loopy_snec_mcmc(SN_name, n_steps, n_walkers, output_dir,
-                                    parameter_ranges, 'mag-veloc',
-                                    csm='with',
-                                    Tthreshold={'lum': LumT, 'mag': True, 'veloc': True},
-                                    normalization=normalization,
-                                    nonuniform_priors=None)
-    for csm in ['twostep', 'twostep-carryover', 'with', 'without']:
-        loopy_snec_mcmc(SN_name, n_steps, n_walkers, output_dir,
-                        parameter_ranges, 'lum',
-                        csm,
-                        Tthreshold={'lum': False, 'mag': True, 'veloc': True},
-                        normalization=False,
-                        nonuniform_priors=None)
+    print('csm:', csm)
+    print('normalization:', normalization)
+    print('luminosity threshold:', LumThreshold)
+    print('nonuniform priors:', nonuniform_priors)
+
+    loopy_snec_mcmc(SN_name, n_steps, burn_in, n_walkers, output_dir,
+                    parameter_ranges, fitting_type, csm,
+                    {'lum': LumThreshold, 'mag': True, 'veloc': True},
+                    normalization,
+                    nonuniform_priors)
+
 
 
 if __name__ == "__main__":
     main(sys.argv)
 
-
-# user input parameters:
-# output_dir = '2022_03_23'
-# SN_list = ['SN2020bij']
-# n_steps = 500
-# n_walkers = 50
-
-
-# SN_list_lum = ['SN2004a', 'SN2004et_d5.9', 'SN2012aw', 'SN2012ec', 'SN2017eaw','SN2018aoq', 'SN2005cs', 'SN2008bk']
-# SN_list_veloc = ['SN2012aw', 'SN2004et_d5.9', 'SN2017eaw','SN2005cs', 'SN2008bk']  # veloc
-# SN_list_mag = ['SN2017eaw', 'SN2004et_d5.9']  # mag
-
-
-# Tthreshold = {'lum': False, 'veloc': True, 'mag': True}
-# normalization = False
-# nonuniform_priors = None
-# csm = True
-
-
-# for csm in [True, False]:
-#     loopy_snec_mcmc(SN_name, parameter_ranges, 'lum',
-#                     csm,
-#                     Tthreshold={'lum': False, 'mag': True, 'veloc': True},
-#                     normalization=False,
-#                     nonuniform_priors=None)
-# for run_type in ['lum-veloc', 'mag-veloc', 'combined']:
-#    for normalization in [True, False]:
-#        for LumT in [False, True]:
-#            loopy_snec_mcmc(SN_name, parameter_ranges, run_type,
-#                            csm=True,
-#                            Tthreshold={'lum': LumT, 'mag': True, 'veloc': True},
-#                            normalization=normalization,
-#                            nonuniform_priors=None)
-
-
-#for run_type in ['veloc', 'lum-veloc', 'lum-veloc-normalized']:
- #   for SN_name in SN_list_veloc:
-  #      loopy_snec_mcmc(SN_name, parameter_ranges, run_type)
-#for run_type in ['mag-veloc', 'mag-veloc-normalized']:
- #   for SN_name in SN_list_mag:
-  #      loopy_snec_mcmc(SN_name, parameter_ranges, run_type)

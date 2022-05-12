@@ -650,7 +650,7 @@ def plot_veloc_with_fit(data_dict, sampler_chain, ranges_dict, step, output_dir,
     return log_likeli
 
 
-def plot_lightcurve_with_fit(sampler_chain, data, ranges_dict, fitting_type, output_dir, SN_name, step, Tthreshold, normalization=False):
+def plot_fit_with_data(sampler_chain, data, ranges_dict, fitting_type, output_dir, SN_name, step, Tthreshold, normalization=False):
     n_walkers, n_steps, n_params = np.shape(sampler_chain)
     args = (data, sampler_chain, ranges_dict, step, output_dir, n_walkers, SN_name, Tthreshold, normalization)
     if fitting_type == 'lum':
