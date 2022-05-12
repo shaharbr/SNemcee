@@ -22,7 +22,7 @@ In addition, there should be a table in ‘SN_data’ that contains the distance
 
 **SNEC model grid:** <br>
 Should be downloaded from:
-https://drive.google.com/file/d/1Bm3pMe7uvuVMrMSMlHCIuw909pMuEIqL/view?usp=sharing
+https://drive.google.com/file/d/1-7ki0ADkq2_Y8ffyzWMT42_VuvXQK69p/view?usp=sharing
 
 And then added to the main directory and extracted using
 tar -xf SNEC_models.tar.gz
@@ -31,7 +31,21 @@ The result should be the directory SNemcee/SNEC_models which contains 2,469 sub-
 **Running SNemcee:** <br>
 To run the SNemcee program on your SN of choice, use command: <br>
 
-python3 run_mcmc_snec_for_all_SNe.py -S <SN name> -s <number of steps> -w <number of walkers> -o <output directory> <br>
+python3 run_mcmc_snec_for_all_SNe.py -S <SN name> -f <type of figure> -s <number of steps> -b <burn-in steps> 
+-w <number of walkers> -o <output directory> -c <csm> -n <normalization> -Lt <luminosity threshold> -p <nonuniform priors> <br>
+
+-S SN name [required. for example: SN2017eaw]<br>
+-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: lum]<br>
+-s number of steps = <int> [default: 500]<br>
+-b burn-in steps = <int> [default: 300]<br>
+-w number of walkers = <int> [default: 30]<br>
+-o <output directory> = <string> [default: output_<current time>]<br>
+-c csm = with, without, twostep, twostep-carryover [default: with]<br>
+-n normalization = True, False [default: False]<br>
+-Lt luminosity_threshold = True, False [default: False]<br>
+-p nonuniform_priors = None, <dictionary> [default: None]<br>
+  
+
 
 By default, it will run with the following variations of mcmc_snec (can be changed by modifying the code): <br>
 <SN_name>_lum_csmFalse_normalizedFalse_TreshLumFalse <br>
