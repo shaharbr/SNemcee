@@ -211,7 +211,7 @@ def main(argv):
         elif opt in ("-s", "--steps"):
             n_steps = int(arg)
         elif opt in ("-b", "--burn_in"):
-            burn_in = arg
+            burn_in = int(arg)
         elif opt in ("-w", "--walkers"):
             n_walkers = int(arg)
         elif opt in ("-o", "--output_dir"):
