@@ -50,7 +50,7 @@ def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThres
     model_name = SN_name + '_' + fitting_type + '_csm-' + csm + '_normalized' + str(normalization) + '_TreshLum' + str(LumThreshold)
     model_path = os.path.join(results_dir, model_name)
     num_subplots = len(fig_types)
-    fig, axs = plt.subplots(1, num_subplots, figsize=(num_subplots*7, 6))
+    fig, axs = plt.subplots(num_subplots, figsize=(num_subplots*7, 6))
     for i, fig_type in enumerate(fig_types):
         plot_single(fig_type, model_path, axs[i])
     fig.savefig(os.path.join(output_dir, model_name + '_'+fig_types+'_plot.png'))
