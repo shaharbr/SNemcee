@@ -183,9 +183,14 @@ def main(argv):
     normalization = False
     LumThreshold = False
     nonuniform_priors = None
-    arg_help = '{0} -S <SN name> -t <fitting_type> -s <number of steps> -b <burn-in steps> -w <number of walkers> -o <output directory>\n' \
-               'args:\n' \
+    arg_help = '{0} -S <SN name> -f <type of figure> -s <number of steps> -b <burn-in steps> -w <number of walkers> -o <output directory> -c <csm> -n <normalization> -Lt <luminosity threshold> -p <nonuniform priors>\n'\
+               '\nargs:\n' \
+               '-S SN name [required. for example: SN2017eaw]\n'\
                '-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: lum] \n' \
+               '-s number of steps = <int> [default: 500]\n'\
+               '-b burn-in steps = <int> [default: 300]\n'\
+               '-w number of walkers = <int> [default: 30]\n' \
+               '-o output directory name = <str> [default: output_<current time>]\n' \
                '-c csm = with, without, twostep, twostep-carryover [default: with] \n' \
                '-n normalization = True, False [default: False] \n' \
                '-Lt luminosity_threshold = True, False [default: False] \n'\
@@ -193,7 +198,7 @@ def main(argv):
                ''.format(argv[0])
 
     try:
-        opts, args = getopt.getopt(argv[1:], "hS:s:t:w:b:o:c:n:Lt:p", ["help", "SN=", 'fitting_type='
+        opts, args = getopt.getopt(argv[1:], "hS:t:s:b:w:o:c:n:Lt:p", ["help", "SN=", 'fitting_type='
                                                                      "steps=", "burn_in=", "walkers=", "output_dir=",
                                                                      "csm=", "normalization=", "luminosity threshold=",
                                                                      "nonuniform_priors="])
