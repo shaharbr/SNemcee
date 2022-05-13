@@ -51,13 +51,11 @@ def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThres
     model_path = os.path.join(results_dir, model_name)
     num_subplots = len(fig_types)
     fig, axs = plt.subplots(num_subplots, figsize=(num_subplots*7, 6))
-    for i, fig_type in enumerate(fig_types):
-        print(fig_type)
-        print(i)
-        print(fig_type)
-        print(model_path)
-        print(axs[0])
-        plot_single(fig_type, model_path, axs[i])
+    if num_subplots > 1:
+        for i, fig_type in enumerate(fig_types):
+            plot_single(fig_type, model_path, axs[i])
+    else:
+        plot_single(fig_type, model_path, axs)
     fig.savefig(os.path.join(output_dir, model_name + '_'+fig_types+'_plot.png'))
 
 
