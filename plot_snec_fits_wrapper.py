@@ -241,7 +241,7 @@ def main(argv):
     elif type_fig == 'lum-veloc-twostep_comparison':
         lum_veloc_onestep_vs_twostep(SN_name,res_dir, step_dir)
 
-
+ 
 if __name__ == "__main__":
     main(sys.argv)
 
