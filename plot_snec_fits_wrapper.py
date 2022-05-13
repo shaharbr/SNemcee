@@ -186,7 +186,7 @@ def main(argv):
                ''.format(argv[0])
     try:
         opts, args = getopt.getopt(argv[1:], "hS:s:f:o:t:c:n:Lt", ["help", "SN=", "steps=", "type of figure=", "output_dir=",
-                                                                   "fitting type", "csm=", "normalization=", "luminosity threshold="])
+                                                                   "fitting type=", "csm=", "normalization=", "luminosity threshold="])
     except:
         print(arg_help)
         sys.exit(2)
