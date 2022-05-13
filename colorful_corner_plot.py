@@ -1,4 +1,3 @@
-"""Demo to overlay multiple corners on top of each other"""
 import corner
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
@@ -27,25 +26,12 @@ def overlaid_corner(samples_list, sample_labels, corner_range, param_labels, out
     max_len = max([len(s) for s in samples_list])
     cmap = plt.cm.get_cmap('jet', n)
     colors = [cmap(i) for i in range(n)]
-
-    # plot_range = []
-    # for dim in range(ndim):
-    #     plot_range.append(
-    #         [
-    #             min([min(samples_list[i].T[dim]) for i in range(n)]),
-    #             max([max(samples_list[i].T[dim]) for i in range(n)]),
-    #         ]
-    #     )
-
-    # CORNER_KWARGS.update(range=plot_range)
-
     fig = corner.corner(
         samples_list[0],
         range=corner_range,
         color=colors[0],
         **CORNER_KWARGS
     )
-
     for idx in range(1, n):
         fig = corner.corner(
             samples_list[idx],
@@ -56,7 +42,6 @@ def overlaid_corner(samples_list, sample_labels, corner_range, param_labels, out
             color=colors[idx],
             **CORNER_KWARGS
         )
-
     plt.legend(
         handles=[
             mlines.Line2D([], [], color=colors[i], label=sample_labels[i])
@@ -71,18 +56,4 @@ def overlaid_corner(samples_list, sample_labels, corner_range, param_labels, out
 
 def get_normalisation_weight(len_current_samples, len_of_longest_samples):
     return np.ones(len_current_samples) * (len_of_longest_samples / len_current_samples)
-
-
-# def main():
-#     ndim, nsamples = 3, 10000
-#     samples = np.random.randn(ndim * nsamples).reshape([nsamples, ndim])
-#
-#     overlaid_corner(
-#         [samples * 3, samples * 2, samples],
-#         ["samples x 3", "samples x 2", "samples"]
-#     )
-#
-#
-# if __name__ == "__main__":
-#     main()
 
