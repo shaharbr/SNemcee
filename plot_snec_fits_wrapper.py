@@ -3,8 +3,10 @@ from matplotlib import pyplot as plt
 import plot_snec_fits
 # import plot_snec_fits_martinez_and_data
 import sys, getopt
+import datetime
 
 
+time_now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 def lum_wCSM_vs_woCSM(SN_name, results_dir, output_dir):
     fig, axs = plt.subplots(1, 2, sharey='row', figsize=(20, 12))
@@ -27,8 +29,38 @@ def lum_wCSM_vs_woCSM(SN_name, results_dir, output_dir):
 
     plot_snec_fits.overlay_corner_plot([lum_csmFalse_path, lum_csmTrue_path], output_dir,
                                        ['without CSM', 'with CSM'], SN_name + '_lum_csm_comparison')
-
     return fig
+
+
+def plot_single(fig_type, model_path, ax):
+    plot_snec_fits.plot_result_fit(model_path, fig_type, ax)
+    ax.set_xlabel('Rest-frame days from discovery', fontsize=14)
+    if fig_type == 'lum':
+        ax.set_ylabel('Expansion velocity (km/s)', fontsize=14)
+    if fig_type == 'veloc':
+        ax.set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
+    if fig_type == 'mag':
+        ax.set_ylabel('Absolute Magnitude', fontsize=14)
+    plt.tight_layout()
+    return ax
+
+
+def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThreshold, results_dir, output_dir):
+    fig_types = fig_type.split("-")
+    model_name = SN_name + '_' + fitting_type + '_csm-' + csm + '_normalized' + normalization + '_TreshLum' + LumThreshold
+    model_path = os.path.join(results_dir, model_name)
+    num_subplots = len(fig_types)
+    fig, axs = plt.subplots(1, num_subplots, figsize=(num_subplots*7, 6))
+    for i, fig_type in enumerate(fig_types):
+        plot_single(fig_type, model_path, axs[0, i])
+    fig.savefig(os.path.join(output_dir, model_name + '_'+fig_types+'_plot.png'))
+
+
+def corner_plot(SN_name, fitting_type, csm, normalization, LumThreshold, results_dir, output_dir):
+    model_name = SN_name + '_'+fitting_type+'_csm-'+csm+'_normalized'+normalization+'_TreshLum'+LumThreshold
+    model_path = os.path.join(results_dir, model_name)
+    plot_snec_fits.overlay_corner_plot([model_path], output_dir,
+                                       [model_name], model_name+'_corner_plot.png')
 
 
 def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, results_dir, output_dir):
@@ -96,7 +128,6 @@ def lum_veloc_vs_mag_veloc(SN_name, results_dir, output_dir, LumTthresh=False):
     return fig
 
 
-# TODO fix this one, after fiing run_mcmc_forall_twostep
 def lum_veloc_onestep_vs_twostep(SN_name, results_dir, output_dir):
     fig, axs = plt.subplots(2, 3, sharey='row', figsize=(20, 12))
 
@@ -133,17 +164,29 @@ def lum_veloc_onestep_vs_twostep(SN_name, results_dir, output_dir):
 
 
 def main(argv):
-    SN_name = ""
-    n_steps = 0
-    type_fig = ""
-    output_dir = ""
-    arg_help = "{0} -S <SN name> -s <number of steps> " \
-               "-t <type of figure [csm/lum-mag-veloc/lum-mag-veloc-Tthresh" \
-               "/lum-veloc-normalized/lum-veloc-twostep]>" \
-               " -o <output directory>".format(argv[0])
+    SN_name = ''
+    n_steps = 500
+    type_fig = False
+    output_dir = 'output_' + time_now
+    fitting_type = False
+    csm = False
+    normalization = False
+    LumThreshold = False
+
+    arg_help = '{0} -S <SN name> -s <number of steps> -t <type of figure> -o <output directory> -f <fitting type> -c <csm> -n <normalization> -Lt <luminosity threshold>\n'\
+               '\nargs:\n' \
+               '-S SN name [required. for example: SN2017eaw]\n' \
+               '-s number of steps = <int> [default: 500]\n' \
+               '-t type of figure = single fit-type plots: lum/veloc/mag [or any combination of those, seperated by -] OR comparison plots: csm_comparison/lum-mag-veloc_comparison/lum-mag-veloc-Tthresh_comparison/lum-veloc-normalized/lum-veloc-twostep [required]' \
+               '-o output directory name = <str> [default: output_<current time>]\n' \
+               '-f fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: False] \n' \
+               '-c csm = with, without, twostep, twostep-carryover [default: False] \n' \
+               '-n normalization = True, False [default: False] \n' \
+               '-Lt luminosity_threshold = True, False [default: False] \n' \
+               ''.format(argv[0])
     try:
-        opts, args = getopt.getopt(argv[1:], "hS:s:t:o:", ["help", "SN=",
-                                                         "steps=", "type_figure=", "output_dir="])
+        opts, args = getopt.getopt(argv[1:], "hS:s:t:o:f:c:n:Lt", ["help", "SN=", "steps=", "type of figure=", "output_dir=",
+                                                                   "fitting type", "csm=", "normalization=", "luminosity threshold="])
     except:
         print(arg_help)
         sys.exit(2)
@@ -155,15 +198,29 @@ def main(argv):
             SN_name = arg
         elif opt in ("-s", "--steps"):
             n_steps = int(arg)
-        elif opt in ("-t", "--type_figure"):
-            type_fig = arg
+        elif opt in ("-t", "--fitting_type"):
+            fitting_type = arg
         elif opt in ("-o", "--output_dir"):
             output_dir = arg
+        elif opt in ("-f", "--figure_type"):
+            type_fig = arg
+        elif opt in ("-c", "--csm"):
+            csm = arg
+        elif opt in ("-n", "--normalization"):
+            normalization = arg
+        elif opt in ("-Lt", "--luminosity_threshold"):
+            LumThreshold = arg
 
     print('SN name:', SN_name)
     print('steps:', n_steps)
-    print('type of figure:', type_fig)
     print('output directory:', output_dir)
+    print('type of figure:', type_fig)
+    if fitting_type:
+        print('fitting type:', fitting_type)
+        print('csm:', csm)
+        print('normalization:', normalization)
+        print('luminosity threshold:', LumThreshold)
+
     res_dir = os.path.join('mcmc_results', output_dir, str(n_steps) + 'step')
     step_dir = os.path.join('figures', output_dir, str(n_steps) + 'step')
     if not os.path.exists(step_dir):
@@ -171,41 +228,22 @@ def main(argv):
             os.mkdir(os.path.join('figures', output_dir))
         os.mkdir(step_dir)
 
-    if type_fig == 'csm':
+    if 'comparison' not in type_fig:
+        composite_plot(SN_name, type_fig, fitting_type, csm, normalization, LumThreshold, res_dir, output_dir)
+    elif type_fig == 'csm_comparison':
         lum_wCSM_vs_woCSM(SN_name, res_dir, step_dir)
-    elif type_fig == 'lum-mag-veloc':
+    elif type_fig == 'lum-mag-veloc_comparison':
         lum_veloc_vs_mag_veloc(SN_name,res_dir, step_dir)
-    elif type_fig == 'lum-mag-veloc-Tthresh':
+    elif type_fig == 'lum-mag-veloc-Tthresh_comparison':
         lum_veloc_vs_mag_veloc(SN_name,res_dir, step_dir, LumTthresh=True)
-    elif type_fig == 'lum-veloc-normalized':
+    elif type_fig == 'lum-veloc-normalized_comparison':
         lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name,res_dir, step_dir)
-    elif type_fig == 'lum-veloc-twostep':
+    elif type_fig == 'lum-veloc-twostep_comparison':
         lum_veloc_onestep_vs_twostep(SN_name,res_dir, step_dir)
 
 
 if __name__ == "__main__":
     main(sys.argv)
-
-# date = '2022_03_23'
-# n_steps = 2000
-# sn_names = ['SN2004a', 'SN2004et_d5.9', 'SN2012aw', 'SN2012ec', 'SN2017eaw','SN2018aoq', 'SN2005cs', 'SN2008bk']
-
-
-
-# if not os.path.exists(os.path.join('mcmc_results', date)):
-#     os.mkdir(os.path.join('mcmc_results', date))
-# if not os.path.exists(os.path.join('mcmc_results', date, str(n_steps) + 'step')):
-#     os.mkdir(os.path.join('mcmc_results', date, str(n_steps) + 'step'))
-# if not res_dir:
-#     os.mkdir(res_dir)
-#
-# if not os.path.exists(output_dir):
-#     os.mkdir(output_dir)
-
-
-
-
-
 
 
 # def lum_veloc_vs_martinez(SN_name, results_dir, output_dir):
