@@ -168,7 +168,8 @@ def main(argv):
     n_steps = 500
     type_fig = False
     output_dir = 'output_' + time_now
-    fitting_type = False
+    fitting_type = 'aaa'
+    print('f1', fitting_type)
     csm = False
     normalization = False
     LumThreshold = False
@@ -177,7 +178,7 @@ def main(argv):
                '\nargs:\n' \
                '-S SN name [required. for example: SN2017eaw]\n' \
                '-s number of steps = <int> [default: 500]\n' \
-               '-f figure type = single fit-type plots: lum/veloc/mag [or any combination of those, seperated by -] OR comparison plots: csm_comparison/lum-mag-veloc_comparison/lum-mag-veloc-Tthresh_comparison/lum-veloc-normalized/lum-veloc-twostep [required]' \
+               '-f figure type = single fit-type plots: lum/veloc/mag [or any combination of those, seperated by -] OR comparison plots: csm_comparison/lum-mag-veloc_comparison/lum-mag-veloc-Tthresh_comparison/lum-veloc-normalized/lum-veloc-twostep [required]\n' \
                '-o output directory name = <str> [default: output_<current time>]\n' \
                '-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: False] \n' \
                '-c csm = with, without, twostep, twostep-carryover [default: False] \n' \
@@ -187,10 +188,12 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv[1:], "hS:s:f:o:t:c:n:Lt", ["help", "SN=", "steps=", "type of figure=", "output_dir=",
                                                                    "fitting type=", "csm=", "normalization=", "luminosity threshold="])
+        print('f2', fitting_type)
     except:
         print(arg_help)
         sys.exit(2)
     for opt, arg in opts:
+        print('f3', fitting_type)
         if opt in ("-h", "--help"):
             print(arg_help)  # print the help message
             sys.exit(2)
@@ -210,7 +213,7 @@ def main(argv):
             normalization = arg
         elif opt in ("-Lt", "--luminosity_threshold"):
             LumThreshold = arg
-
+    print('f4', fitting_type)
     print('SN name:', SN_name)
     print('steps:', n_steps)
     print('output directory:', output_dir)
