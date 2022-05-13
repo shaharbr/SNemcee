@@ -176,7 +176,7 @@ def main(argv):
     normalization = False
     LumThreshold = False
 
-    arg_help = '{0} -S <SN name> -s <number of steps> -f <figure_type> -o <output directory> -t <fitting type> -c <csm> -n <normalization> -l <luminosity threshold>\n'\
+    arg_help = '{0} -S <SN name> -s <number of steps> -f <figure_type> -o <output directory> -t <fitting type> -c <csm> -n <normalization> -a <luminosity threshold>\n'\
                '\nargs:\n' \
                '-S SN name [required. for example: SN2017eaw]\n' \
                '-s number of steps = <int> [default: 500]\n' \
@@ -185,10 +185,10 @@ def main(argv):
                '-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: False] \n' \
                '-c csm = with, without, twostep, twostep-carryover [default: False] \n' \
                '-n normalization = True, False [default: False] \n' \
-               '-l luminosity_threshold = True, False [default: False] \n' \
+               '-a luminosity_threshold = True, False [default: False] \n' \
                ''.format(argv[0])
     try:
-        opts, args = getopt.getopt(argv[1:], "hS:s:f:o:t:c:n:l", ["help", "SN=", "steps=", "type of figure=", "output_dir=",
+        opts, args = getopt.getopt(argv[1:], "hS:s:f:o:t:c:n:a", ["help", "SN=", "steps=", "type of figure=", "output_dir=",
                                                                    "fitting type=", "csm=", "normalization=", "luminosity threshold="])
     except:
         print(arg_help)
@@ -211,7 +211,7 @@ def main(argv):
             csm = arg
         elif opt in ("-n", "--normalization"):
             normalization = arg
-        elif opt in ("-l", "--luminosity_threshold"):
+        elif opt in ("-a", "--luminosity_threshold"):
             print('lll1', LumThreshold)
             LumThreshold = arg
             print('lll2', LumThreshold)
