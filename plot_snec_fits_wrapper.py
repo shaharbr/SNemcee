@@ -56,7 +56,7 @@ def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThres
         print(i)
         print(fig_type)
         print(model_path)
-        print(axs)
+        print(axs[0])
         plot_single(fig_type, model_path, axs[i])
     fig.savefig(os.path.join(output_dir, model_name + '_'+fig_types+'_plot.png'))
 
