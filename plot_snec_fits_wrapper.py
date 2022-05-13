@@ -169,12 +169,11 @@ def main(argv):
     type_fig = False
     output_dir = 'output_' + time_now
     fitting_type = 'aaa'
-    print('f1', fitting_type)
     csm = False
     normalization = False
     LumThreshold = False
 
-    arg_help = '{0} -S <SN name> -s <number of steps> -f <figure_type> -o <output directory> -t <fitting type> -c <csm> -n <normalization> -Lt <luminosity threshold>\n'\
+    arg_help = '{0} -S <SN name> -s <number of steps> -f <figure_type> -o <output directory> -t <fitting type> -c <csm> -n <normalization> -l <luminosity threshold>\n'\
                '\nargs:\n' \
                '-S SN name [required. for example: SN2017eaw]\n' \
                '-s number of steps = <int> [default: 500]\n' \
@@ -183,17 +182,15 @@ def main(argv):
                '-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: False] \n' \
                '-c csm = with, without, twostep, twostep-carryover [default: False] \n' \
                '-n normalization = True, False [default: False] \n' \
-               '-Lt luminosity_threshold = True, False [default: False] \n' \
+               '-l luminosity_threshold = True, False [default: False] \n' \
                ''.format(argv[0])
     try:
-        opts, args = getopt.getopt(argv[1:], "hS:s:f:o:t:c:n:Lt", ["help", "SN=", "steps=", "type of figure=", "output_dir=",
+        opts, args = getopt.getopt(argv[1:], "hS:s:f:o:t:c:n:l", ["help", "SN=", "steps=", "type of figure=", "output_dir=",
                                                                    "fitting type=", "csm=", "normalization=", "luminosity threshold="])
-        print('f2', fitting_type)
     except:
         print(arg_help)
         sys.exit(2)
     for opt, arg in opts:
-        print('f3', fitting_type)
         if opt in ("-h", "--help"):
             print(arg_help)  # print the help message
             sys.exit(2)
@@ -211,9 +208,8 @@ def main(argv):
             csm = arg
         elif opt in ("-n", "--normalization"):
             normalization = arg
-        elif opt in ("-Lt", "--luminosity_threshold"):
+        elif opt in ("-l", "--luminosity_threshold"):
             LumThreshold = arg
-    print('f4', fitting_type)
     print('SN name:', SN_name)
     print('steps:', n_steps)
     print('output directory:', output_dir)

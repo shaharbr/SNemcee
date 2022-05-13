@@ -183,7 +183,7 @@ def main(argv):
     normalization = False
     LumThreshold = False
     nonuniform_priors = None
-    arg_help = '{0} -S <SN name> -f <type of figure> -s <number of steps> -b <burn-in steps> -w <number of walkers> -o <output directory> -c <csm> -n <normalization> -Lt <luminosity threshold> -p <nonuniform priors>\n'\
+    arg_help = '{0} -S <SN name> -f <type of figure> -s <number of steps> -b <burn-in steps> -w <number of walkers> -o <output directory> -c <csm> -n <normalization> -l <luminosity threshold> -p <nonuniform priors>\n'\
                '\nargs:\n' \
                '-S SN name [required. for example: SN2017eaw]\n'\
                '-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: lum] \n' \
@@ -193,12 +193,12 @@ def main(argv):
                '-o output directory name = <str> [default: output_<current time>]\n' \
                '-c csm = with, without, twostep, twostep-carryover [default: with] \n' \
                '-n normalization = True, False [default: False] \n' \
-               '-Lt luminosity_threshold = True, False [default: False] \n'\
+               '-l luminosity_threshold = True, False [default: False] \n'\
                '-p nonuniform_priors = None, <dictionary> [default: None] \n' \
                ''.format(argv[0])
 
     try:
-        opts, args = getopt.getopt(argv[1:], "hS:t:s:b:w:o:c:n:Lt:p", ["help", "SN=", 'fitting_type='
+        opts, args = getopt.getopt(argv[1:], "hS:t:s:b:w:o:c:n:l:p", ["help", "SN=", 'fitting_type='
                                                                      "steps=", "burn_in=", "walkers=", "output_dir=",
                                                                      "csm=", "normalization=", "luminosity threshold=",
                                                                      "nonuniform_priors="])
@@ -225,7 +225,7 @@ def main(argv):
             csm = arg
         elif opt in ("-n", "--normalization"):
             normalization = arg
-        elif opt in ("-Lt", "--luminosity_threshold"):
+        elif opt in ("-l", "--luminosity_threshold"):
             LumThreshold = arg
         elif opt in ("-p", "--nonuniform_priors"):
             nonuniform_priors = arg
