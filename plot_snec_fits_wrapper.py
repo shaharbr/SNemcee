@@ -47,7 +47,7 @@ def plot_single(fig_type, model_path, ax):
 
 def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThreshold, results_dir, output_dir):
     fig_types = fig_type.split("-")
-    model_name = SN_name + '_' + fitting_type + '_csm-' + csm + '_normalized' + normalization + '_TreshLum' + LumThreshold
+    model_name = SN_name + '_' + fitting_type + '_csm-' + csm + '_normalized' + str(normalization) + '_TreshLum' + str(LumThreshold)
     model_path = os.path.join(results_dir, model_name)
     num_subplots = len(fig_types)
     fig, axs = plt.subplots(1, num_subplots, figsize=(num_subplots*7, 6))
@@ -173,19 +173,19 @@ def main(argv):
     normalization = False
     LumThreshold = False
 
-    arg_help = '{0} -S <SN name> -s <number of steps> -t <type of figure> -o <output directory> -f <fitting type> -c <csm> -n <normalization> -Lt <luminosity threshold>\n'\
+    arg_help = '{0} -S <SN name> -s <number of steps> -f <figure_type> -o <output directory> -t <fitting type> -c <csm> -n <normalization> -Lt <luminosity threshold>\n'\
                '\nargs:\n' \
                '-S SN name [required. for example: SN2017eaw]\n' \
                '-s number of steps = <int> [default: 500]\n' \
-               '-t type of figure = single fit-type plots: lum/veloc/mag [or any combination of those, seperated by -] OR comparison plots: csm_comparison/lum-mag-veloc_comparison/lum-mag-veloc-Tthresh_comparison/lum-veloc-normalized/lum-veloc-twostep [required]' \
+               '-f figure type = single fit-type plots: lum/veloc/mag [or any combination of those, seperated by -] OR comparison plots: csm_comparison/lum-mag-veloc_comparison/lum-mag-veloc-Tthresh_comparison/lum-veloc-normalized/lum-veloc-twostep [required]' \
                '-o output directory name = <str> [default: output_<current time>]\n' \
-               '-f fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: False] \n' \
+               '-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: False] \n' \
                '-c csm = with, without, twostep, twostep-carryover [default: False] \n' \
                '-n normalization = True, False [default: False] \n' \
                '-Lt luminosity_threshold = True, False [default: False] \n' \
                ''.format(argv[0])
     try:
-        opts, args = getopt.getopt(argv[1:], "hS:s:t:o:f:c:n:Lt", ["help", "SN=", "steps=", "type of figure=", "output_dir=",
+        opts, args = getopt.getopt(argv[1:], "hS:s:f:o:t:c:n:Lt", ["help", "SN=", "steps=", "type of figure=", "output_dir=",
                                                                    "fitting type", "csm=", "normalization=", "luminosity threshold="])
     except:
         print(arg_help)
@@ -198,12 +198,12 @@ def main(argv):
             SN_name = arg
         elif opt in ("-s", "--steps"):
             n_steps = int(arg)
-        elif opt in ("-t", "--fitting_type"):
-            fitting_type = arg
-        elif opt in ("-o", "--output_dir"):
-            output_dir = arg
         elif opt in ("-f", "--figure_type"):
             type_fig = arg
+        elif opt in ("-o", "--output_dir"):
+            output_dir = arg
+        elif opt in ("-t", "--fitting_type"):
+            fitting_type = arg
         elif opt in ("-c", "--csm"):
             csm = arg
         elif opt in ("-n", "--normalization"):
@@ -241,7 +241,7 @@ def main(argv):
     elif type_fig == 'lum-veloc-twostep_comparison':
         lum_veloc_onestep_vs_twostep(SN_name,res_dir, step_dir)
 
- 
+
 if __name__ == "__main__":
     main(sys.argv)
 
