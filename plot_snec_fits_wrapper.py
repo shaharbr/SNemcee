@@ -215,11 +215,10 @@ def main(argv):
     print('steps:', n_steps)
     print('output directory:', output_dir)
     print('type of figure:', type_fig)
-    if fitting_type:
-        print('fitting type:', fitting_type)
-        print('csm:', csm)
-        print('normalization:', normalization)
-        print('luminosity threshold:', LumThreshold)
+    print('fitting type:', fitting_type)
+    print('csm:', csm)
+    print('normalization:', normalization)
+    print('luminosity threshold:', LumThreshold)
 
     res_dir = os.path.join('mcmc_results', output_dir, str(n_steps) + 'step')
     step_dir = os.path.join('figures', output_dir, str(n_steps) + 'step')
