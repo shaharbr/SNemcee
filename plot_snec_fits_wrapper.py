@@ -212,7 +212,9 @@ def main(argv):
         elif opt in ("-n", "--normalization"):
             normalization = arg
         elif opt in ("-l", "--luminosity_threshold"):
+            print('lll1', LumThreshold)
             LumThreshold = arg
+            print('lll2', LumThreshold)
     print('SN name:', SN_name)
     print('steps:', n_steps)
     print('output directory:', output_dir)
