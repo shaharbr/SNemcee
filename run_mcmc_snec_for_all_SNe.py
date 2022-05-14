@@ -198,7 +198,7 @@ def main(argv):
                ''.format(argv[0])
 
     try:
-        opts, args = getopt.getopt(argv[1:], "hS:t:s:b:w:o:c:n:l:p", ["help", "SN=", 'fitting_type='
+        opts, args = getopt.getopt(argv[1:], "hS:t:s:b:w:o:c:n:l:p:", ["help", "SN=", 'fitting_type='
                                                                      "steps=", "burn_in=", "walkers=", "output_dir=",
                                                                      "csm=", "normalization=", "luminosity threshold=",
                                                                      "nonuniform_priors="])
