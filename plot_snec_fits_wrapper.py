@@ -188,7 +188,7 @@ def main(argv):
                '-l luminosity_threshold = True, False [default: False] \n' \
                ''.format(argv[0])
     try:
-        opts, args = getopt.getopt(argv[1:], "hS:s:f:o:t:c:l:n", ["help", "SN=", "steps=", "type of figure=", "output_dir=",
+        opts, args = getopt.getopt(argv[1:], "hS:s:f:o:t:c:l:n:", ["help", "SN=", "steps=", "type of figure=", "output_dir=",
                                                                    "fitting type=", "csm=", "normalization=", "luminosity threshold="])
     except:
         print(arg_help)
