@@ -63,7 +63,7 @@ def corner_plot(SN_name, fitting_type, csm, normalization, LumThreshold, results
     model_name = SN_name + '_'+str(fitting_type)+'_csm-'+csm+'_normalized'+normalization+'_TreshLum'+LumThreshold
     model_path = os.path.join(results_dir, model_name)
     plot_snec_fits.overlay_corner_plot([model_path], output_dir,
-                                       [model_name], model_name+'_corner_plot.png')
+                                       [model_name], model_name)
 
 
 def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, results_dir, output_dir):
