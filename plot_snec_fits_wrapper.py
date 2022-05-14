@@ -50,7 +50,7 @@ def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThres
     model_name = SN_name + '_' + fitting_type + '_csm-' + csm + '_normalized' + str(normalization) + '_TreshLum' + str(LumThreshold)
     model_path = os.path.join(results_dir, model_name)
     num_subplots = len(fig_types)
-    fig, axs = plt.subplots(num_subplots, figsize=(7, num_subplots*7))
+    fig, axs = plt.subplots(num_subplots, figsize=(10, num_subplots*7))
     if num_subplots > 1:
         for i, f in enumerate(fig_types):
             plot_single(f, model_path, axs[i])
@@ -180,7 +180,7 @@ def main(argv):
                '\nargs:\n' \
                '-S SN name [required. for example: SN2017eaw]\n' \
                '-s number of steps = <int> [default: 500]\n' \
-               '-f figure type = single fit-type plots: lum/veloc/mag [or any combination of those, seperated by -] OR comparison plots: csm_comparison/lum-mag-veloc_comparison/lum-mag-veloc-Tthresh_comparison/lum-veloc-normalized/lum-veloc-twostep [required]\n' \
+               '-f figure type = single fit-type plots: lum/veloc/mag [or any combination of those, separated by -] OR corner OR comparison plots: csm_comparison/lum-mag-veloc_comparison/lum-mag-veloc-Tthresh_comparison/lum-veloc-normalized/lum-veloc-twostep [required]\n' \
                '-o output directory name = <str> [default: output_<current time>]\n' \
                '-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: False] \n' \
                '-c csm = with, without, twostep, twostep-carryover [default: False] \n' \
@@ -232,7 +232,10 @@ def main(argv):
         os.mkdir(step_dir)
 
     if 'comparison' not in type_fig:
-        composite_plot(SN_name, type_fig, fitting_type, csm, normalization, LumThreshold, res_dir, step_dir)
+        if type_fig == 'corner':
+            corner_plot(SN_name, fitting_type, csm, normalization, LumThreshold, res_dir, step_dir)
+        else:
+            composite_plot(SN_name, type_fig, fitting_type, csm, normalization, LumThreshold, res_dir, step_dir)
     elif type_fig == 'csm_comparison':
         lum_wCSM_vs_woCSM(SN_name, res_dir, step_dir)
     elif type_fig == 'lum-mag-veloc_comparison':
