@@ -232,7 +232,7 @@ def main(argv):
         os.mkdir(step_dir)
 
     if 'comparison' not in type_fig:
-        composite_plot(SN_name, type_fig, fitting_type, csm, normalization, LumThreshold, res_dir, output_dir)
+        composite_plot(SN_name, type_fig, fitting_type, csm, normalization, LumThreshold, res_dir, step_dir)
     elif type_fig == 'csm_comparison':
         lum_wCSM_vs_woCSM(SN_name, res_dir, step_dir)
     elif type_fig == 'lum-mag-veloc_comparison':
