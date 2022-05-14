@@ -31,8 +31,7 @@ The result should be the directory SNemcee/SNEC_models which contains 2,469 sub-
 **Running SNemcee:** <br>
 To run the SNemcee program on your SN of choice, use command: <br>
 
-python3 run_mcmc_snec_for_all_SNe.py -S <SN name> -f <type of figure> -s <number of steps> -b <burn-in steps> 
--w <number of walkers> -o <output directory> -c <csm> -n <normalization> -Lt <luminosity threshold> -p <nonuniform priors> <br>
+python3 run_mcmc_snec_for_all_SNe.py -S <SN name> -f <type of figure> -s <number of steps> -b <burn-in steps> -w <number of walkers> -o <output directory> -c <csm> -n <normalization> -l <luminosity threshold> -p <nonuniform priors> <br>
 
 -S SN name [required. for example: SN2017eaw]<br>
 -t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: lum]<br>
@@ -42,7 +41,7 @@ python3 run_mcmc_snec_for_all_SNe.py -S <SN name> -f <type of figure> -s <number
 -o <output directory> = <string> [default: output_<current time>]<br>
 -c csm = with, without, twostep, twostep-carryover [default: with]<br>
 -n normalization = True, False [default: False]<br>
--Lt luminosity_threshold = True, False [default: False]<br>
+-l luminosity_threshold = True, False [default: False]<br>
 -p nonuniform_priors = None, <dictionary> [default: None]<br>
   
 
@@ -73,14 +72,19 @@ Record of the input arguments used in that run <br>
 **Running script for comparison plots:** <br>
 After running run_mcmc_snec_for_all_SNe.py, you can use plot_snec_fits_wrapper.py to plot paper-ready figures - for example, to compare the effect of different likelihood functions (different fitting schemes), or the inclusion of CSM, on the posterior distributions: <br>
 
-python3 plot_snec_fits_wrapper.py -S <SN name> -s <number of steps> -t <type of figure> -o <output directory> <br>
+python3 plot_snec_fits_wrapper.py -S <SN name> -s <number of steps> -f <figure_type> -o <output directory> -t <fitting type> -c <csm> -n <normalization> -l <luminosity threshold> <br>
 
-**possible “types of figure”:** <br>
-csm <br>
-lum-mag-veloc <br>
-lum-mag-veloc-Tthresh <br>
-lum-veloc-normalized <br>
-lum-veloc-twostep <br>
+
+-S SN name [required. for example: SN2017eaw]<br>
+-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: lum]<br>
+-s number of steps = <int> [default: 500]<br>
+-f figure type = single fit-type plots: lum/veloc/mag [or any combination of those, separated by -] OR corner OR comparison plots: csm_comparison/lum-mag-veloc_comparison/lum-mag-veloc-Tthresh_comparison/lum-veloc-normalized/lum-veloc-twostep [required]<br>
+-o <output directory> = <string> [default: output_<current time>]<br>
+-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: False] <br>
+-c csm = with, without, twostep, twostep-carryover [default: with]<br>
+-n normalization = True, False [default: False]<br>
+-l luminosity_threshold = True, False [default: False]<br>
+
 
 **Comparison plots outputs:** <br>
 Output files will be stored in ‘/mcmc/figures/<output directory>/<number of walkers>’. <br>
