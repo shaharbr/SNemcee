@@ -279,6 +279,8 @@ def calc_mag_likelihood(theta, data, surrounding_values, Tthreshold_dict, normal
 
 
 def plot_lum_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_dict, normalization):
+    print('Tthreshold_dict')
+    print(Tthreshold_dict)
     Tthreshold = Tthreshold_dict['lum']
     data_x = data['t_from_discovery']
     data_y = data['Lum']
@@ -294,6 +296,7 @@ def plot_lum_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_d
             data_x_moved = data_x - T
             if Tthreshold:
                 max_x = temp_thresh_cutoff(requested, surrounding_values, models, data_x_moved)
+                print('Tthreshold activ', max_x)
                 x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
             else:
                 x_plotting = np.linspace(-T, 200-T, 2001)
