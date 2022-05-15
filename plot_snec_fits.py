@@ -279,8 +279,6 @@ def calc_mag_likelihood(theta, data, surrounding_values, Tthreshold_dict, normal
 
 
 def plot_lum_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_dict, normalization):
-    print('Tthreshold_dict')
-    print(Tthreshold_dict)
     Tthreshold = Tthreshold_dict['lum']
     data_x = data['t_from_discovery']
     data_y = data['Lum']
