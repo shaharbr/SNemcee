@@ -98,7 +98,7 @@ def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, results_dir, output_dir):
 
 
 def lum_veloc_vs_mag_veloc(SN_name, results_dir, output_dir, LumTthresh=False):
-    fig, axs = plt.subplots(3, 2, sharey='row', figsize=(20, 12))
+    fig, axs = plt.subplots(3, 2, figsize=(20, 12))
 
     if LumTthresh:
         lum_veloc_name = SN_name + '_lum-veloc_csm-with_normalizedFalse_TreshLumTrue_TreshVelocTrue'
