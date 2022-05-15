@@ -446,6 +446,13 @@ def overlay_corner_plot(result_paths_list, output_dir, name_list, filename):
     # f_corner.savefig(os.path.join(output_dir, 'corner_plot.png'))
 
 
+def string_to_bool(mystr):
+    if mystr == 'False':
+        return False
+    else:
+        return True
+
+
 def get_args_from_file(result_path, ax, data_type):
     run_params_path = os.path.join(result_path, 'run_parameters.csv')
     run_params = pd.read_csv(run_params_path, index_col=0).T
@@ -456,9 +463,9 @@ def get_args_from_file(result_path, ax, data_type):
     n_walkers = int(run_params.iloc[0]['n_walkers'])
     burn_in = int(run_params.iloc[0]['burn_in'])
     normalization = run_params.iloc[0]['normalization']
-    Tthreshold_lum = run_params.iloc[0]['Tthreshold_lum']
-    Tthreshold_mag = run_params.iloc[0]['Tthreshold_mag']
-    Tthreshold_veloc = run_params.iloc[0]['Tthreshold_veloc']
+    Tthreshold_lum = string_to_bool(run_params.iloc[0]['Tthreshold_lum'])
+    Tthreshold_mag = string_to_bool(run_params.iloc[0]['Tthreshold_mag'])
+    Tthreshold_veloc = string_to_bool(run_params.iloc[0]['Tthreshold_veloc'])
     Tthreshold_dict = {'lum': Tthreshold_lum, 'veloc': Tthreshold_veloc, 'mag': Tthreshold_mag}
     if data_type == 'lum':
         data = mcmc_snec.import_lum(SN_name)
