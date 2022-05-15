@@ -296,7 +296,6 @@ def plot_lum_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_d
             data_x_moved = data_x - T
             if Tthreshold:
                 max_x = temp_thresh_cutoff(requested, surrounding_values, models, data_x_moved)
-                print('Tthreshold activ', max_x)
                 x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
             else:
                 x_plotting = np.linspace(-T, 200-T, 2001)
@@ -308,10 +307,6 @@ def plot_lum_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_d
                 y_fit = y_fit * S
                 # y_fit_on_data_times = y_fit_on_data_times * S
                 ax.plot(x_plotting, np.log10(y_fit), alpha=0.1, color='purple')
-                print('lum')
-                print(data_x)
-                print(max_x)
-                print(x_plotting)
                 log_likeli.append(calc_lum_likelihood(requested, data, surrounding_values, Tthreshold_dict, normalization))
     log_likeli = np.mean(log_likeli)
     data_dy0 = np.log10(data_y + dy0) - np.log10(data_y)
