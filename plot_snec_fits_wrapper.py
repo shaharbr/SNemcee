@@ -47,7 +47,13 @@ def plot_single(fig_type, model_path, ax):
 
 def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThreshold, results_dir, output_dir):
     fig_types = fig_type.split("-")
-    model_name = SN_name + '_' + fitting_type + '_csm-' + csm + '_normalized' + str(normalization) + '_TreshLum' + str(LumThreshold)
+    model_name = SN_name + '_' + fitting_type + '_csm-' + csm + '_normalized' + str(normalization)
+    if 'lum' in fig_type:
+        model_name += '_TreshLum' + str(LumThreshold)
+    if 'mag' in fig_type:
+        model_name += '_TreshMagTrue'
+    if 'veloc' in fig_type:
+        model_name += '_TreshVelocTrue'
     model_path = os.path.join(results_dir, model_name)
     num_subplots = len(fig_types)
     fig, axs = plt.subplots(num_subplots, figsize=(10, num_subplots*7))
