@@ -66,7 +66,7 @@ def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThres
 
 
 def corner_plot(SN_name, fitting_type, csm, normalization, LumThreshold, results_dir, output_dir):
-    model_name = SN_name + '_'+str(fitting_type)+'_csm-'+csm+'_normalized'+normalization+'_TreshLum'+LumThreshold
+    model_name = SN_name + '_'+str(fitting_type)+'_csm-'+csm+'_normalized'+str(normalization)+'_TreshLum'+str(LumThreshold)
     model_path = os.path.join(results_dir, model_name)
     plot_snec_fits.overlay_corner_plot([model_path], output_dir,
                                        [model_name], model_name)
