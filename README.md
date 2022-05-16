@@ -31,7 +31,7 @@ The result should be the directory SNemcee/SNEC_models which contains 2,469 sub-
 **Running SNemcee:** <br>
 To run the SNemcee program on your SN of choice, use command: <br>
 
-python3 run_mcmc_snec_for_all_SNe.py -S <SN name> -f <type of figure> -s <number of steps> -b <burn-in steps> -w <number of walkers> -o <output directory> -c <csm> -n <normalization> -l <luminosity threshold> -p <nonuniform priors> <br>
+python3 run_mcmc_snec_for_all_SNe.py -S <SN name> -t <fitting_type> -s <number of steps> -b <burn-in steps> -w <number of walkers> -o <output directory> -c <csm> -n <normalization> -l <luminosity threshold> -p <nonuniform priors> <br>
 
 -S SN name [required. for example: SN2017eaw]<br>
 -t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: lum]<br>
@@ -43,7 +43,6 @@ python3 run_mcmc_snec_for_all_SNe.py -S <SN name> -f <type of figure> -s <number
 -n normalization = True, False [default: False]<br>
 -l luminosity_threshold = True, False [default: False]<br>
 -p nonuniform_priors = None, <dictionary> [default: None]<br>
-  
 
 
 By default, it will run with the following variations of mcmc_snec (can be changed by modifying the code): <br>
@@ -91,3 +90,4 @@ Output files will be stored in ‘/mcmc/figures/<output directory>/<number of wa
 Output files will include summary figures: <br>
 Comparison of fits of final models for each run-type compared, including the input observation data for that SN (all walkers, and steps after burn-in) <br>
 Comparison corner plot with the posterior distributions for each run-type, overlaid on top of each-other <br>
+    
