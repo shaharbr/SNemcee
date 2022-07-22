@@ -16,6 +16,7 @@ import mcmc_snec
 import datetime
 import sys, getopt
 
+time_now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 '''
 Lists specifying the range of parameters to allow the mcmc to explore,
@@ -32,7 +33,6 @@ K_range = [0, 10, 30, 60]
 T_range = [-5, 2]  # time shift from assumed day of explosion (days)
 parameter_ranges = {'Mzams': Mzams_range, 'Ni': Ni_range, 'E': E_final_range,
                     'R': R_range, 'K': K_range, 'Mix': Mix_range, 'S': [], 'T': T_range}
-time_now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 '''
 The function loopy_snec_mcmc imports the SNEC_models for the SN, and then runs
@@ -57,42 +57,11 @@ the output directory. Output files include:
 4) Flat_sampler.csv: MCMC sampler output table - a 2D table, where columns are the parameters, and rows are walkers and steps (by the hierarchy of: steps, and within them walkers)
 5) final_results.csv: Summary statistics for the final posterior distributions for each parameter: mean, 16% percentile and 85% percentile.
 6) run_parameters.csv: Record of the input arguments used in that run
-
-
-
 '''
 
-def loopy_snec_mcmc(SN_name, n_steps, burn_in, n_walkers, output_dir, parameter_ranges, run_type, csm, Tthreshold, normalization, nonuniform_priors):
-    # calculate range for the scaling parameter, which is derived from the uncertainty in distance
-    # (in Mpc, provided in the table distances.csv')
-    distances = pd.read_csv(os.path.join('SN_data', 'distances.csv'))
-    distance = float(distances.loc[distances['SN_name'] == SN_name]['distance'])
-    distance_err = float(distances.loc[distances['SN_name'] == SN_name]['distance_err'])
-    sigma_S = 2 * distance_err / distance
-    S_range = [1.0 - 3 * sigma_S, 1.0 + 3 * sigma_S]
-    parameter_ranges['S'] = S_range
-    filename = SN_name + '_' +  run_type + '_csm-' + str(csm) + '_' + 'normalized' + str(normalization)
-    # TODO think about how user should provide the nonuniform_priors
-    if nonuniform_priors is not None:
-        nonuniform_priors = {'S': {'gaussian': {'mu': 1.0, 'sigma': sigma_S}}}
-
-    SN_data_all = {}
-    if 'lum' in run_type or 'combined' in run_type:
-        # import SN bolometric lum SNEC_models
-        data_lum = mcmc_snec.import_lum(SN_name)
-        SN_data_all['lum'] = data_lum
-        filename += '_' + 'TreshLum' + str(Tthreshold['lum'])
-    if 'mag' in run_type or 'combined' in run_type:
-        # import SN mag SNEC_models
-        data_mag = mcmc_snec.import_mag(SN_name)
-        SN_data_all['mag'] = data_mag
-        filename += '_' + 'TreshMag' + str(Tthreshold['mag'])
-    if 'veloc' in run_type or 'combined' in run_type:
-        # import SN photospheric velocities SNEC_models
-        data_veloc = mcmc_snec.import_veloc(SN_name)
-        SN_data_all['veloc'] = data_veloc
-        filename += '_' + 'TreshVeloc' + str(Tthreshold['veloc'])
-
+def make_res_dir(SN_name, run_type, csm, normalization, LumTthresh, output_dir, n_steps):
+    filename = SN_name + '_' + run_type + '_csm-' + str(csm) \
+               + '_normalized' + str(normalization) + 'TreshLum' + str(LumTthresh)
     res_dir = os.path.join('mcmc_results', output_dir, str(n_steps) + 'step', filename)
     if not os.path.exists(res_dir):
         if not os.path.exists(os.path.join('mcmc_results', output_dir, str(n_steps) + 'step')):
@@ -100,28 +69,35 @@ def loopy_snec_mcmc(SN_name, n_steps, burn_in, n_walkers, output_dir, parameter_
                 os.mkdir(os.path.join('mcmc_results', output_dir))
             os.mkdir(os.path.join('mcmc_results', output_dir, str(n_steps) + 'step'))
         os.mkdir(res_dir)
-    mcmc_snec.write_params_file(parameter_ranges, S_range, SN_name, n_walkers, n_steps,
-                                csm, Tthreshold, normalization, burn_in, time_now, res_dir)
+    return res_dir
+
+
+def loopy_snec_mcmc(SN_name, n_steps, burn_in, n_walkers, output_dir, parameter_ranges, run_type, csm, LumTthresh, normalization, nonuniform_priors):
+    res_dir = make_res_dir(SN_name, run_type, csm, normalization, LumTthresh, output_dir, n_steps)
+    # TODO think about how user should provide the nonuniform_priors
+    S_range, sigma_S = mcmc_snec.S_prior(SN_name)
+    parameter_ranges['S'] = S_range
+    if nonuniform_priors is not None:
+        nonuniform_priors = {'S': {'gaussian': {'mu': 1.0, 'sigma': sigma_S}}}
     '''
     # running code #
     '''
-    final_step = n_steps - 1
     if csm == 'with':
-        sampler = mcmc_snec.emcee_fit_params(SN_data_all, n_walkers, n_steps, parameter_ranges,
-                                             run_type, True, Tthreshold, normalization, nonuniform_priors)
+        sampler = mcmc_snec.emcee_fit_params(SN_name, res_dir, n_walkers, n_steps, burn_in,
+                                             parameter_ranges, run_type, True, LumTthresh, normalization, nonuniform_priors)
         sampler_chain = sampler.chain
     elif csm == 'without' or csm == 'twostep' or csm == 'twostep-carryover':
-        sampler = mcmc_snec.emcee_fit_params(SN_data_all, n_walkers, n_steps, parameter_ranges,
-                                             run_type, False, Tthreshold, normalization, nonuniform_priors)
+        sampler = mcmc_snec.emcee_fit_params(SN_name, res_dir, n_walkers, n_steps, burn_in,
+                                             parameter_ranges, run_type, False, LumTthresh, normalization, nonuniform_priors)
         sampler_chain = sampler.chain
         sampler_chain = np.insert(sampler_chain, 3, np.zeros((2, 1, 1)), axis=2)
-
     # make flat (2D) chain matrix
     s = list(sampler_chain.shape[1:])
     s[0] = np.prod(sampler_chain.shape[:2])
     sampler_chain_flat = sampler_chain.reshape(s)
     # make flat chain without the burn-in steps
     flat_sampler_no_burnin = sampler_chain_flat[n_walkers * burn_in:, :]
+    final_step = n_steps - 1
 
     if csm == 'twostep' or csm == 'twostep-carryover':
         # make a flat chain matrix as dataframe with column headers
@@ -146,23 +122,18 @@ def loopy_snec_mcmc(SN_name, n_steps, burn_in, n_walkers, output_dir, parameter_
             for param in ['Mzams', 'Ni', 'E', 'Mix', 'S', 'T']:
                 nonuniform_priors[param] = {
                     'polynomial': mcmc_snec.polyfit_to_distribution(flat_sampler_no_burnin_df[param], res_dir)}
+
         # run the mcmc again, with walkers starting from their positions at the end of the first stage, and with or
         # without carryover as priors
-        sampler_second_step = mcmc_snec.emcee_fit_params(SN_data_all, n_walkers, n_steps, parameter_ranges,
-                                                         run_type, True, Tthreshold, normalization, nonuniform_priors,
+        sampler_second_step = mcmc_snec.emcee_fit_params(SN_name, res_dir, n_walkers, n_steps, burn_in, parameter_ranges,
+                                                         run_type, True, LumTthresh, normalization,nonuniform_priors,
                                                          init_guesses=last_walkers_noCSM)
         # concatenate the second stage sampler to the first one
         sampler_chain = np.concatenate((sampler_chain, sampler_second_step.chain), axis=1)
         sampler_chain_flat = np.concatenate((sampler_chain_flat, sampler_second_step.get_chain(flat=True)), axis=0)
-        flat_sampler_no_burnin = sampler_chain_flat[n_walkers * burn_in:, :]
         final_step = 2 * n_steps - 1
-
-    mcmc_snec.chain_plots(sampler_chain, parameter_ranges, res_dir, burn_in)
-    mcmc_snec.corner_plot(flat_sampler_no_burnin, parameter_ranges, res_dir)
-    mcmc_snec.plot_fit_with_data(sampler_chain, SN_data_all, parameter_ranges,
-                                       run_type, res_dir, SN_name, 0, Tthreshold, normalization)
-    mcmc_snec.plot_fit_with_data(sampler_chain, SN_data_all, parameter_ranges,
-                                       run_type, res_dir, SN_name, final_step, Tthreshold, normalization)
+    # TODO n_step or n_step-1?
+    mcmc_snec.save_param_results(sampler_chain, parameter_ranges, final_step, output_dir)
     np.savetxt(os.path.join(res_dir, 'flat_sampler.csv'), sampler_chain_flat, delimiter=",")
 
     print(sampler.chain.shape)
