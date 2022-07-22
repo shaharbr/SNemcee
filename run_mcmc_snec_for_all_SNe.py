@@ -133,7 +133,7 @@ def loopy_snec_mcmc(SN_name, n_steps, burn_in, n_walkers, output_dir, parameter_
         sampler_chain_flat = np.concatenate((sampler_chain_flat, sampler_second_step.get_chain(flat=True)), axis=0)
         final_step = 2 * n_steps - 1
     # TODO n_step or n_step-1?
-    mcmc_snec.save_param_results(sampler_chain, parameter_ranges, final_step, output_dir)
+    mcmc_snec.save_param_results(sampler_chain, parameter_ranges, final_step, res_dir)
     np.savetxt(os.path.join(res_dir, 'flat_sampler.csv'), sampler_chain_flat, delimiter=",")
 
     print(sampler.chain.shape)
