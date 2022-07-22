@@ -3,8 +3,7 @@ import pandas as pd
 import os
 
 
-def initialize_empty_models_dict(ranges_dict):
-    models = {}
+def initialize_empty_models_dict(models, ranges_dict):
     for data_type in ['lum', 'veloc', 'mag', 'temp']:
         models[data_type] = {}
         for Mzams in ranges_dict['Mzams']:
