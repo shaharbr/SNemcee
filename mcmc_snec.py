@@ -139,8 +139,8 @@ def calc_lum_likelihood(theta, data_dict, surrounding_values, normalization, Lum
     data_x_moved = data_x - theta[7]
     if LumTthreshold:
         max_x, temp_fit = temp_thresh_cutoff(theta[0:6], surrounding_values, data_x_moved)
-        data_x_moved = data_x_moved[data_x_moved <= max_x]
         data = data.loc[data_x_moved <= max_x]
+        data_x_moved = data_x_moved[data_x_moved <= max_x]
     data_y = data['Lum']
     data_dy = data['dLum0']
     y_fit = interp.snec_interpolator(theta[0:6], surrounding_values, models['lum'], data_x_moved)
@@ -165,8 +165,8 @@ def calc_veloc_likelihood(theta, data_dict, surrounding_values, normalization):
     data_x_moved = data_x - theta[7]
     # apply temperature threshold on time
     max_x, temp_fit = temp_thresh_cutoff(theta[0:6], surrounding_values, data_x_moved)
-    data_x_moved = data_x_moved[data_x_moved <= max_x]
     data = data.loc[data_x_moved <= max_x]
+    data_x_moved = data_x_moved[data_x_moved <= max_x]
     # veloc data
     data_y = data['veloc']
     data_dy = data['dveloc']
