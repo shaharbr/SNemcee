@@ -337,7 +337,7 @@ def save_param_results(sampler_chain, ranges_dict, step, output_dir):
         dict[param] = avg
         dict[param +'_lower'] = avg - sigma_lower
         dict[param + '_upper'] = sigma_upper - avg
-    with open(os.path.join(output_dir, 'final_results.csv'), 'w') as f:  # Just use 'w' mode in 3.x
+    with open(os.path.join('mcmc_results',output_dir, 'final_results.csv'), 'w') as f:  # Just use 'w' mode in 3.x
         w = csv.DictWriter(f, dict.keys())
         w.writeheader()
         w.writerow(dict)
