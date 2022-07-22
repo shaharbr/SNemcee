@@ -41,7 +41,7 @@ as well as the run-type arguments determined by the main funciton:
 *run_type: 'lum', 'veloc', 'mag', 'lum-veloc', 'mag-veloc', 'lum-mag', 'combined'
 [which observations are used to calculate the fitting score in the likelihood function]
 *csm: with, without, twostep, twostep_carryover
-*Tthreshold: dictionary {'lum': True/False, 'mag': True/False, 'veloc': True/False}
+*LumTthreshold: True or False
 *normalization: True or False
 *nonuniform_priors: dictionary with keys being parameter names, and their values 
 being more dictionaries with gaussian or polynomial distribution parameters. 
@@ -214,7 +214,7 @@ def main(argv):
 
     loopy_snec_mcmc(SN_name, n_steps, burn_in, n_walkers, output_dir,
                     parameter_ranges, fitting_type, csm,
-                    {'lum': LumThreshold, 'mag': True, 'veloc': True},
+                    LumThreshold,
                     normalization,
                     nonuniform_priors)
 
