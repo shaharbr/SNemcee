@@ -1,32 +1,3 @@
-import numpy as np
-
-a = []
-b = [np.array([1,2,3,0]), np.array([4,5,6,0])]
-c = [np.array([6,7,8,0]), np.array([9,10,11,0])]
-d = [np.array([11,12,13,0]), np.array([14,15,16,0])]
-a.append(b)
-a.append(c)
-a.append(d)
-print('break')
-print(a)
-a = np.array(a)
-print('break')
-print(a)
-a_shape = a.shape
-print(a.shape)
-a = a.reshape(a_shape[0], a_shape[1] * a_shape[2])
-print(a.shape)
-print('saved')
-print(a)
-np.savetxt('atext.txt', a)
-again = np.genfromtxt('atext.txt')
-print('genfromtxt')
-print(again)
-again = again.reshape(a_shape)
-print('break')
-print(again)
-exit()
-
 import os
 from matplotlib import pyplot as plt
 import plot_snec_fits
