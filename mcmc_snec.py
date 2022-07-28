@@ -302,6 +302,7 @@ def initial_guesses(ranges_dict, n_walkers, csm):
 
 def load_SN_data(run_type, SN_name):
     SN_data_all = {}
+    print(run_type)
     if 'lum' in run_type:
         # import SN bolometric lum SNEC_models
         data_lum = import_lum(SN_name)
@@ -314,6 +315,7 @@ def load_SN_data(run_type, SN_name):
         # import SN photospheric velocities SNEC_models
         data_veloc = import_veloc(SN_name)
         SN_data_all['veloc'] = data_veloc
+    print(SN_data_all)
     return SN_data_all
 
 
