@@ -6,124 +6,16 @@ import os
 import mcmc_snec
 import re
 import snec_model_interpolator as interp
-import corner
-from scipy.stats import chi2
 import colorful_corner_plot as color_corner
+import models as mod
 
 
 T_thresh = 10 ** 3.5
 extend_tail = False
 models = {}
-
+filters = ['u', 'g', 'r', 'i', 'z', 'U', 'B', 'V', 'R', 'I']
 colors = {'u': 'purple', 'g': 'teal', 'r': 'red', 'i': 'maroon', 'z': 'black', 'U': 'purple',
           'B': 'blue', 'V': 'green', 'R': 'red', 'I': 'maroon'}
-
-def initialize_empty_models_dict(ranges_dict):
-    for data_type in ['lum', 'veloc', 'mag', 'temp']:
-        models[data_type] = {}
-        for Mzams in ranges_dict['Mzams']:
-            models[data_type][Mzams] = {}
-            for Ni in ranges_dict['Ni']:
-                models[data_type][Mzams][Ni] = {}
-                for E in ranges_dict['E']:
-                    models[data_type][Mzams][Ni][E] = {}
-                    for R in ranges_dict['R']:
-                        models[data_type][Mzams][Ni][E][R] = {}
-                        for K in ranges_dict['K']:
-                            models[data_type][Mzams][Ni][E][R][K] = {}
-                            for Mix in ranges_dict['Mix']:
-                                models[data_type][Mzams][Ni][E][R][K][Mix] = None
-
-
-def get_surrouding_values(requested, ranges_dict):
-    params = list(ranges_dict.keys())
-    surrouding_values = {param: [] for param in params}
-    for i, req in enumerate(requested):
-        param_range = np.array(ranges_dict[params[i]])
-        below = np.max(param_range[param_range <= req])
-        above = np.min(param_range[param_range >= req])
-        surrouding_values[params[i]] = [below, above]
-    return surrouding_values
-
-
-def load_model(Mzams, Ni, E, R, K, Mix, data_type):
-    if R == 0 or K == 0:
-        R = 0
-        K = 0
-    name = 'M' + str(Mzams) + \
-           '_Ni' + str(Ni) + \
-           '_E' + str(E) + \
-           '_Mix' + str(Mix) + \
-           '_R' + str(R) + \
-           '_K' + str(K)
-    if data_type == 'lum':
-        modelpath = os.path.join('SNEC_models', name, 'lum_observed.dat')
-        if os.stat(modelpath).st_size < 10 ** 5:
-            return 'failed SN'
-        else:
-            snec_model = pd.read_csv(modelpath)
-            time_col = snec_model['t_from_discovery'] / 86400  # sec to days
-            interp_days = np.linspace(0, 200, 2001)
-            snec_model = np.interp(interp_days, time_col, snec_model['Lum'])
-            return snec_model
-    elif data_type == 'veloc':
-        modelpath = os.path.join('SNEC_models', name, 'vel_Fe.dat')
-        if os.stat(modelpath).st_size < 10 ** 4:
-            return 'failed SN'
-        else:
-            snec_model = pd.read_csv(modelpath)
-            time_col = snec_model['t_from_discovery'] / 86400  # sec to days
-            interp_days = np.linspace(0, 200, 2001)
-            snec_model = np.interp(interp_days, time_col, snec_model['vel'])
-            return snec_model
-    elif data_type == 'temp':
-        modelpath = os.path.join('SNEC_models', name, 'T_eff.dat')
-        if os.stat(modelpath).st_size < 10 ** 5:
-            return 'failed SN'
-        snec_model = pd.read_csv(modelpath)
-        time_col = snec_model['t_from_discovery'] / 86400  # sec to days
-        interp_days = np.linspace(0, 200, 2001)
-        snec_model = np.interp(interp_days, time_col, snec_model['temp'])
-        return snec_model
-    elif data_type == 'mag':
-        modelpath = os.path.join('SNEC_models', name, 'magnitudes_pys.dat')
-        lumpath = os.path.join('SNEC_models', name, 'lum_observed.dat')
-        if os.stat(lumpath).st_size < 10 ** 5:
-            return 'failed SN'
-        else:
-            mag_file = pd.read_csv(modelpath, names=['t_from_discovery', 'Teff', 'PTF_R_AB', 'R^2', 'u', 'g', 'r', 'i', 'z', 'U', 'B', 'V', 'R', 'I'])
-            time_col = mag_file['t_from_discovery'] / 86400  # sec to days
-            interp_days = np.linspace(0, 200, 2001)
-            snec_model_dict = {}
-            for filter in ['u', 'g', 'r', 'i', 'z', 'U', 'B', 'V', 'R', 'I']:
-                snec_model_dict[filter] = np.interp(interp_days, time_col, mag_file[filter])
-            snec_model_dict['t_from_discovery'] = interp_days
-            snec_model = pd.DataFrame(snec_model_dict)
-            snec_model = snec_model.sort_values('t_from_discovery')
-            return snec_model
-
-
-def load_surrounding_models(requested, ranges_dict, fitting_type, Tthreshold):
-    any_Tthreshold = any([Tthreshold['lum'], Tthreshold['veloc'], Tthreshold['mag']])
-    surrouding_values = get_surrouding_values(requested, ranges_dict)
-    for Mzams in surrouding_values['Mzams']:
-        for Ni in surrouding_values['Ni']:
-            for E in surrouding_values['E']:
-                for R in surrouding_values['R']:
-                    for K in surrouding_values['K']:
-                        for Mix in surrouding_values['Mix']:
-                            if 'lum' in fitting_type or 'combined' in fitting_type:
-                                if models['lum'][Mzams][Ni][E][R][K][Mix] is None:
-                                    models['lum'][Mzams][Ni][E][R][K][Mix] = load_model(Mzams, Ni, E, R, K, Mix, 'lum')
-                            if 'veloc' in fitting_type or 'combined' in fitting_type:
-                                if models['veloc'][Mzams][Ni][E][R][K][Mix] is None:
-                                    models['veloc'][Mzams][Ni][E][R][K][Mix] = load_model(Mzams, Ni, E, R, K, Mix, 'veloc')
-                            if 'mag' in fitting_type or 'combined' in fitting_type:
-                                if models['mag'][Mzams][Ni][E][R][K][Mix] is None:
-                                    models['mag'][Mzams][Ni][E][R][K][Mix] = load_model(Mzams, Ni, E, R, K, Mix, 'mag')
-                            if any_Tthreshold:
-                                if models['temp'][Mzams][Ni][E][R][K][Mix] is None:
-                                    models['temp'][Mzams][Ni][E][R][K][Mix] = load_model(Mzams, Ni, E, R, K, Mix, 'temp')
 
 
 def import_ranges(list, run_params):
@@ -175,111 +67,19 @@ def result_text_from_dict(sampler_df, ranges_dict):
     return res_text
 
 
-# def chi_square_norm(y, dy, y_fit, df):
-#     return np.sum(((y - y_fit) / dy) ** 2) / df
+def open_reshape_3d_array(output_dir, type, step):
+    array_2d = np.genfromtxt(os.path.join(output_dir, type+ '_models_step' + str(step) + '.txt'))
+    shape_2d = array_2d.shape
+    array_3d = array_2d.reshape((shape_2d[0], 2, shape_2d[1]/2))
+    return array_3d
 
 
-# TODO this step can introduce some bias - SNe that don't have early velocities
-#  will select against models that cool fast
-def temp_thresh_cutoff(requested_theta, surrounding_values, models, data_x):
-    temp_fit = interp.snec_interpolator(requested_theta[0:6], surrounding_values, models['temp'],
-                                        data_x)
-    max_x = 0
-    if not isinstance(temp_fit, str):
-        if len(temp_fit[temp_fit >= T_thresh]) > 0:
-            min_temp_above_Tthresh = np.min(temp_fit[temp_fit >= T_thresh])
-            x_out = data_x[temp_fit > min_temp_above_Tthresh]
-            max_x = np.max(x_out)
-    return max_x
+def load_surrounding_models(requested, ranges_dict, fitting_type, LumTthreshold=False):
+    mod.load_surrounding_models_local(models, requested, ranges_dict, fitting_type, LumTthreshold)
 
 
-def calc_lum_likelihood(theta, data, surrounding_values, Tthreshold_dict, normalization):
-    Tthreshold = Tthreshold_dict['lum']
-    data_x = data['t_from_discovery']
-    data_x_moved = data_x - theta[7]
-    if Tthreshold:
-        max_x = temp_thresh_cutoff(theta[0:6], surrounding_values, models, data_x_moved)
-        data_x_moved = data_x_moved[data_x_moved <= max_x]
-        data = data.loc[data['t_from_discovery'] - theta[7] <= max_x]
-    data_y = data['Lum']
-    data_dy = data['dLum0']
-    y_fit = interp.snec_interpolator(theta[0:6], surrounding_values, models['lum'], data_x_moved)
-    if not isinstance(y_fit, str):
-        # multiply whole graph by scaling factor
-        y_fit = y_fit * theta[6]
-        # calculate the log likelihood
-        df = len(data_y) - 1
-        if normalization:
-            norm = len(data_y)
-        else:
-            norm = 1
-        return chi2.logpdf(mcmc_snec.chi_square_norm(data_y, data_dy, y_fit), df) / norm
-    else:
-        print('impossible SN')
-        return - np.inf
-
-
-def calc_veloc_likelihood(theta, data, surrounding_values, Tthreshold_dict, normalization):
-    Tthreshold = Tthreshold_dict['veloc']
-    data_x = data['t_from_discovery']
-    data_x_moved = data_x - theta[7]
-    if Tthreshold:
-        max_x = temp_thresh_cutoff(theta[0:6], surrounding_values, models, data_x_moved)
-        data_x_moved = data_x_moved[data_x_moved <= max_x]
-        data = data.loc[data['t_from_discovery'] - theta[7] <= max_x]
-    data_y = data['veloc']
-    data_dy = data['dveloc']
-    y_fit = interp.snec_interpolator(theta[0:6], surrounding_values, models['veloc'], data_x_moved)
-    if not isinstance(y_fit, str):
-        # calculate the log likelihood
-        df = len(data_y) - 1
-        if normalization:
-            norm = len(data_y)
-        else:
-            norm = 1
-        return chi2.logpdf(mcmc_snec.chi_square_norm(data_y, data_dy, y_fit), df) / norm
-    else:
-        print('impossible SN')
-        return - np.inf
-
-
-def calc_mag_likelihood(theta, data, surrounding_values, Tthreshold_dict, normalization):
-    Tthreshold = Tthreshold_dict['mag']
-    log_likeli = 0
-    any_filter_data = False
-    y_fit = {}
-    filters = list(data['filter'].unique())
-    data_x = data['t_from_discovery']
-    data_x_moved = data_x - theta[7]
-    if Tthreshold:
-        max_x = temp_thresh_cutoff(theta[0:6], surrounding_values, models, data_x_moved)
-        data = data.loc[data['t_from_discovery'] - theta[7] <= max_x]
-    for filt in filters:
-        data_filt = data.loc[data['filter'] == filt]
-        data_x_filt_moved = data_filt['t_from_discovery'] - theta[7]
-        data_y_filt = data_filt['abs_mag']
-        data_dy_filt = data_filt['dmag']
-        y_fit[filt] = interp.snec_interpolator(theta[0:6], surrounding_values, models['mag'], data_x_filt_moved,
-                                               filter=filt)
-        if not isinstance(y_fit[filt], str):
-            # multiply whole graph by scaling factor
-            y_fit[filt] = y_fit[filt] * theta[6]
-            # calculate the log likelihood
-            df = len(data_y_filt) - 1
-            if normalization:
-                norm = len(data_y_filt)
-            else:
-                norm = 1
-            log_likeli += chi2.logpdf(mcmc_snec.chi_square_norm(data_y_filt, data_dy_filt, y_fit[filt]), df) / norm
-            any_filter_data = True
-    if any_filter_data:
-        return log_likeli
-    else:
-        return - np.inf
-
-
-def plot_lum_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_dict, normalization):
-    Tthreshold = Tthreshold_dict['lum']
+def plot_lum_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold):
+    data = data_dict['lum']
     data_x = data['t_from_discovery']
     data_y = data['Lum']
     dy0 = data['dLum0']
@@ -289,23 +89,22 @@ def plot_lum_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_d
         [Mzams, Ni, E, R, K, Mix, S, T] = sampler_df.iloc[i]
         requested = [Mzams, Ni, E, R, K, Mix, S, T]
         if mcmc_snec.theta_in_range(requested, ranges_dict):
-            load_surrounding_models(requested[0:6], ranges_dict, 'lum', Tthreshold_dict)
-            surrounding_values = get_surrouding_values(requested[0:6], ranges_dict)
+            surrounding_values = mod.get_surrouding_values(requested[0:6], ranges_dict)
+            load_surrounding_models(requested[0:6], ranges_dict, 'lum', LumTthreshold)
             data_x_moved = data_x - T
-            if Tthreshold:
-                max_x = temp_thresh_cutoff(requested, surrounding_values, models, data_x_moved)
+            if LumTthreshold:
+                max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], surrounding_values, data_x_moved)
+                data = data.loc[data_x_moved <= max_x]
                 x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
             else:
                 x_plotting = np.linspace(-T, 200-T, 2001)
             y_fit = interp.snec_interpolator(requested[0:6], surrounding_values, models['lum'], x_plotting)
-            # y_fit_on_data_times = interp.snec_interpolator(requested[0:6], surrounding_values, models['lum'],
-            #                                                data_x_moved)
             if not isinstance(y_fit, str):
                 # multiply whole graph by scaling factor
                 y_fit = y_fit * S
                 # y_fit_on_data_times = y_fit_on_data_times * S
                 ax.plot(x_plotting, np.log10(y_fit), alpha=0.1, color='purple')
-                log_likeli.append(calc_lum_likelihood(requested, data, surrounding_values, Tthreshold_dict, normalization))
+                log_likeli.append(mcmc_snec.calc_lum_likelihood(requested, data, surrounding_values, normalization, LumTthreshold))
     log_likeli = np.mean(log_likeli)
     data_dy0 = np.log10(data_y + dy0) - np.log10(data_y)
     data_dy1 = np.log10(data_y + dy1) - np.log10(data_y)
@@ -322,8 +121,7 @@ def plot_lum_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_d
     return ax
 
 
-def plot_veloc_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_dict, normalization):
-    Tthreshold = Tthreshold_dict['veloc']
+def plot_veloc_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold):
     data_x = data['t_from_discovery']
     data_y = data['veloc']
     data_dy = data['dveloc']
@@ -332,22 +130,19 @@ def plot_veloc_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold
         [Mzams, Ni, E, R, K, Mix, S, T] = sampler_df.iloc[i]
         requested = [Mzams, Ni, E, R, K, Mix, S, T]
         if mcmc_snec.theta_in_range(requested, ranges_dict):
-            load_surrounding_models(requested[0:6], ranges_dict, 'veloc', Tthreshold_dict)
-            surrounding_values = get_surrouding_values(requested[0:6], ranges_dict)
+            surrounding_values = mod.get_surrouding_values(requested[0:6], ranges_dict)
+            load_surrounding_models(requested[0:6], ranges_dict, 'veloc')
             data_x_moved = data_x - T
-
-            if Tthreshold:
-                max_x = temp_thresh_cutoff(requested, surrounding_values, models, data_x_moved)
-                x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
-            else:
-                x_plotting = np.linspace(-T, 150 - T, 1501)
+            # always truncate by temp thresh for veloc
+            max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], surrounding_values, data_x_moved)
+            data = data.loc[data_x_moved <= max_x]
+            x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
             x_plotting_moved = x_plotting - T
             y_fit = interp.snec_interpolator(requested[0:6], surrounding_values, models['veloc'], x_plotting_moved)
-            # y_fit_on_data_times = interp.snec_interpolator(requested[0:6], surrounding_values, models['veloc'],
-            #                                                data_x_moved)
             if not isinstance(y_fit, str):
                 ax.plot(x_plotting, y_fit, alpha=0.1, color='purple')
-                log_likeli.append(calc_veloc_likelihood(requested, data, surrounding_values, Tthreshold_dict, normalization))
+                log_likeli.append(
+                    mcmc_snec.calc_veloc_likelihood(requested, data, surrounding_values, normalization, LumTthreshold))
     log_likeli = np.mean(log_likeli)
     # real observations for the SN
     ax.errorbar(data_x, data_y, yerr=data_dy, marker='o', linestyle='None', color='k')
@@ -357,36 +152,30 @@ def plot_veloc_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold
     return ax
 
 
-def plot_mag_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, Tthreshold_dict, normalization):
-    Tthreshold = Tthreshold_dict['mag']
+def plot_mag_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold):
     filters = list(data['filter'].unique())
     data_x = data['t_from_discovery']
     y_fit = {}
-    # y_fit_on_data_times = {}
     log_likeli = []
     for i in range(n_walkers):
         [Mzams, Ni, E, R, K, Mix, S, T] = sampler_df.iloc[i]
         requested = [Mzams, Ni, E, R, K, Mix, S, T]
         if mcmc_snec.theta_in_range(requested, ranges_dict):
-            load_surrounding_models(requested[0:6], ranges_dict, 'mag', Tthreshold_dict)
-            surrounding_values = get_surrouding_values(requested[0:6], ranges_dict)
+            surrounding_values = mod.get_surrouding_values(requested[0:6], ranges_dict)
+            load_surrounding_models(requested[0:6], ranges_dict, 'mag')
             data_x_moved = data_x - T
-
-            if Tthreshold:
-                max_x = temp_thresh_cutoff(requested, surrounding_values, models, data_x_moved)
-                x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
-            else:
-                x_plotting = np.linspace(-T, 200-T, 2001)
+            # always truncate by temp thresh for mag
+            max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], surrounding_values, data_x_moved)
+            data = data.loc[data_x_moved <= max_x]
+            x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
             for filt in filters:
                 y_fit[filt] = interp.snec_interpolator(requested[0:6], surrounding_values,
                                                        models['mag'], x_plotting, filter=filt)
-                # y_fit_on_data_times[filt] = interp.snec_interpolator(requested[0:6], surrounding_values,
-                #                                        models['mag'], data_x_moved, filter=filt)
                 if not isinstance(y_fit, str):
                     # multiply whole graph by scaling factor
-                    y_fit[filt] = y_fit[filt] * S
+                    y_fit[filt] = y_fit[filt] -2.5*np.log10(S)
                     ax.plot(x_plotting, y_fit[filt], color=colors[filt], alpha=0.1)
-                    log_likeli.append(calc_mag_likelihood(requested, data, surrounding_values, Tthreshold_dict, normalization))
+                    log_likeli.append(mcmc_snec.calc_mag_likelihood(requested, data, surrounding_values, normalization, LumTthreshold))
     log_likeli = np.mean(log_likeli)
     for filt in filters:
         data_filt = data.loc[data['filter'] == filt]
@@ -445,32 +234,67 @@ def string_to_bool(mystr):
     else:
         return True
 
+# TODO adapt these two below to work in plot_snec_fits (it was in mcmc_snec)
+
+def get_each_walker_result(sampler_chain, ranges_dict, step):
+    params = list(ranges_dict.keys())
+    dict = {}
+    for i in range(len(params)):
+        last_results = sampler_chain[:, step:, i]
+        avg = np.mean(last_results)
+        sigma_lower, sigma_upper = np.percentile(last_results, [16, 84])
+        dict[params[i]] = avg
+        dict[params[i]+'_lower'] = avg - sigma_lower
+        dict[params[i] + '_upper'] = sigma_upper - avg
+
+def chain_plots(result_path, output_dir, first_stage_steps=None):
+    # (result_paths_list, output_dir, name_list, filename):
+    run_params_path = os.path.join(result_path, 'run_parameters.csv')
+    run_params = pd.read_csv(run_params_path, index_col=0).T
+    ranges_dict = import_ranges(run_params.columns.values, run_params)
+    params = ranges_dict.keys()
+    n_walkers = int(run_params.iloc[0]['n_walkers'])
+    n_steps = int(run_params.iloc[0]['n_steps'])
+    burn_in = int(run_params.iloc[0]['burn_in'])
+    flat_sampler_path = os.path.join(result_path, 'flat_sampler.csv')
+    sampler_array = np.genfromtxt(flat_sampler_path, delimiter=',')
+    sampler_chain = sampler_array.reshape((n_walkers, n_steps, len(params)))
+
+
+
+    keys = list(ranges_dict.keys())
+    for i in range(len(keys)):
+        key = keys[i]
+        plt.figure()
+        plt.plot(sampler_chain[:, :, i].T, color='k', alpha=0.1)
+        plt.xlabel('Step Number')
+        plt.ylabel(key)
+        plt.axvspan(0, burn_in, alpha=0.1, color='grey')
+        if first_stage_steps is not None:
+            plt.axvline(x=first_stage_steps, color='black')
+            plt.axvspan(first_stage_steps, first_stage_steps+burn_in, alpha=0.1, color='grey')
+        plt.tight_layout()
+        plt.savefig(os.path.join(output_dir, key+'.png'))
+
 
 def get_args_from_file(result_path, ax, data_type):
     run_params_path = os.path.join(result_path, 'run_parameters.csv')
     run_params = pd.read_csv(run_params_path, index_col=0).T
     ranges_dict = import_ranges(run_params.columns.values, run_params)
     params = ranges_dict.keys()
-    initialize_empty_models_dict(ranges_dict)
     SN_name = run_params.iloc[0]['SN_name']
+    # TODO shoud this be n_steps or n_steps-1?
+    # step = run_params.iloc[0]['n_steps']
     n_walkers = int(run_params.iloc[0]['n_walkers'])
     burn_in = int(run_params.iloc[0]['burn_in'])
     normalization = run_params.iloc[0]['normalization']
-    Tthreshold_lum = string_to_bool(run_params.iloc[0]['Tthreshold_lum'])
-    Tthreshold_mag = string_to_bool(run_params.iloc[0]['Tthreshold_mag'])
-    Tthreshold_veloc = string_to_bool(run_params.iloc[0]['Tthreshold_veloc'])
-    Tthreshold_dict = {'lum': Tthreshold_lum, 'veloc': Tthreshold_veloc, 'mag': Tthreshold_mag}
-    if data_type == 'lum':
-        data = mcmc_snec.import_lum(SN_name)
-    elif data_type == 'veloc':
-        data = mcmc_snec.import_veloc(SN_name)
-    elif data_type == 'mag':
-        data = mcmc_snec.import_mag(SN_name)
+    LumTthreshold = string_to_bool(run_params.iloc[0]['Tthreshold_lum'])
+    data_dict = mcmc_snec.load_SN_data(data_type, SN_name)
     flat_sampler_path = os.path.join(result_path, 'flat_sampler.csv')
-    flat_sampler_noburnin = pd.read_csv(flat_sampler_path,
+    sampler_df = pd.read_csv(flat_sampler_path,
                                         names=params,
                                         skiprows=(burn_in - 1) * (n_walkers))
-    args = (data, flat_sampler_noburnin, ranges_dict, n_walkers, ax, Tthreshold_dict, normalization)
+    args = (data_dict, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold)
     return args
 
 

@@ -89,7 +89,7 @@ def load_model(Mzams, Ni, E, R, K, Mix, data_type):
             return snec_model
 
 
-def load_surrounding_models_local(models, requested, ranges_dict, fitting_type, LumTthreshold):
+def load_surrounding_models_local(models, requested, ranges_dict, fitting_type, LumTthreshold=False):
     surrouding_values = get_surrouding_values(requested, ranges_dict)
     for Mzams in surrouding_values['Mzams']:
         for Ni in surrouding_values['Ni']:

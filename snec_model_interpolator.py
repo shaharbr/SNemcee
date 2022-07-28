@@ -1,7 +1,5 @@
 import numpy as np
 
-data_filters = ['g', 'r', 'i', 'V', 'R', 'I']
-
 def snec_interpolator(requested, surrounding_values, models_dict, data_days, filter=False):
     if len(data_days) < 2:
         print('no days to model')

@@ -1,3 +1,32 @@
+import numpy as np
+
+a = []
+b = [np.array([1,2,3,0]), np.array([4,5,6,0])]
+c = [np.array([6,7,8,0]), np.array([9,10,11,0])]
+d = [np.array([11,12,13,0]), np.array([14,15,16,0])]
+a.append(b)
+a.append(c)
+a.append(d)
+print('break')
+print(a)
+a = np.array(a)
+print('break')
+print(a)
+a_shape = a.shape
+print(a.shape)
+a = a.reshape(a_shape[0], a_shape[1] * a_shape[2])
+print(a.shape)
+print('saved')
+print(a)
+np.savetxt('atext.txt', a)
+again = np.genfromtxt('atext.txt')
+print('genfromtxt')
+print(again)
+again = again.reshape(a_shape)
+print('break')
+print(again)
+exit()
+
 import os
 from matplotlib import pyplot as plt
 import plot_snec_fits
@@ -194,7 +223,7 @@ def main(argv):
                '-s number of steps = <int> [default: 500]\n' \
                '-f figure type = single fit-type plots: lum/veloc/mag [or any combination of those, separated by -] OR corner OR comparison plots: csm_comparison/lum-mag-veloc_comparison/lum-mag-veloc-Tthresh_comparison/lum-veloc-normalized/lum-veloc-twostep [required]\n' \
                '-o output directory name = <str> [default: output_<current time>]\n' \
-               '-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag, combined [default: False] \n' \
+               '-t fitting_type = lum, veloc, mag, lum-veloc, mag-veloc, lum-mag, lum-veloc-mag [default: False] \n' \
                '-c csm = with, without, twostep, twostep-carryover [default: False] \n' \
                '-n normalization = True, False [default: False] \n' \
                '-l luminosity_threshold = True, False [default: False] \n' \

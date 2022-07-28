@@ -54,7 +54,7 @@ def polyfit_to_distribution(array_walker_results, res_dir):
     return polymod
 
 
-def load_surrounding_models(requested, ranges_dict, fitting_type, LumTthreshold):
+def load_surrounding_models(requested, ranges_dict, fitting_type, LumTthreshold=False):
     mod.load_surrounding_models_local(models, requested, ranges_dict, fitting_type, LumTthreshold)
 
 
@@ -205,7 +205,7 @@ def calc_mag_likelihood(theta, data_dict, surrounding_values, normalization):
                                                filter=filt)
         if not isinstance(y_fit[filt], str):
             # multiply whole graph by scaling factor
-            y_fit[filt] = y_fit[filt] * theta[6]
+            y_fit[filt] = y_fit[filt] -2.5*np.log10(theta[6])
             # calculate the log likelihood
             df = len(data_y_filt) - 1
             if normalization:
@@ -229,7 +229,7 @@ def log_likelihood(theta, data, ranges_dict, fitting_type, LumTthreshold, normal
 
     ranges_dict : as provided by the user, in the form described above
 
-    fitting_type : lum, mag, veloc, combined or combined_normalized
+    fitting_type : lum, mag, veloc
     """
     # print(theta)
     # ranges_list = dict_to_list(ranges_dict)
@@ -239,6 +239,7 @@ def log_likelihood(theta, data, ranges_dict, fitting_type, LumTthreshold, normal
         surrounding_values = mod.get_surrouding_values(theta[0:6], ranges_dict)
         load_surrounding_models(theta[0:6], ranges_dict, fitting_type, LumTthreshold)
         args = [theta, data, surrounding_values, normalization]
+        # TODO make this run any combination of fitting type based on "if in", for, add
         if fitting_type == 'lum':
             args.append(LumTthreshold)
             log_likeli = calc_lum_likelihood(*args)
