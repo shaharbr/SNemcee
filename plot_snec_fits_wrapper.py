@@ -118,7 +118,7 @@ def lum_veloc_vs_mag_veloc(SN_name, results_dir, output_dir, LumTthresh=False):
         lum_veloc_name = SN_name + '_lum-veloc_csm-with_normalizedFalse_TreshLumFalse_TreshVelocTrue'
     lum_veloc_path = os.path.join(results_dir, lum_veloc_name)
 
-    mag_veloc_name = SN_name + '_mag-veloc_csm-with_normalizedFalse_TreshMagTrue_TreshVelocTrue'
+    mag_veloc_name = SN_name + '_mag-veloc_csm-with_normalizedFalse'
     mag_veloc_path = os.path.join(results_dir, mag_veloc_name)
 
     plot_snec_fits.plot_result_fit(lum_veloc_path, 'lum', axs[0, 0])
@@ -135,11 +135,11 @@ def lum_veloc_vs_mag_veloc(SN_name, results_dir, output_dir, LumTthresh=False):
     axs[2, 1].set_xlabel('Rest-frame days from discovery', fontsize=14)
 
     plt.tight_layout()
-    fig.savefig(os.path.join(output_dir, SN_name + '_lum-veloc_mag-veloc_comparison_LumThresh'+str(LumTthresh)+'.png'))
+    fig.savefig(os.path.join(output_dir, SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum'+str(LumTthresh)+'.png'))
 
     plot_snec_fits.overlay_corner_plot([lum_veloc_path, mag_veloc_path], output_dir,
                                        ['lum+veloc', 'mag+veloc'],
-                                       SN_name + '_lum-veloc_mag-veloc_comparison_LumThresh'+str(LumTthresh))
+                                       SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum'+str(LumTthresh))
     return fig
 
 
@@ -250,7 +250,7 @@ def main(argv):
         lum_wCSM_vs_woCSM(SN_name, res_dir, step_dir)
     elif type_fig == 'lum-mag-veloc_comparison':
         lum_veloc_vs_mag_veloc(SN_name,res_dir, step_dir)
-    elif type_fig == 'lum-mag-veloc-Tthresh_comparison':
+    elif type_fig == 'lum-mag-veloc-TreshLum_comparison':
         lum_veloc_vs_mag_veloc(SN_name,res_dir, step_dir, LumTthresh=True)
     elif type_fig == 'lum-veloc-normalized_comparison':
         lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name,res_dir, step_dir)

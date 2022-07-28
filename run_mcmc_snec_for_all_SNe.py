@@ -61,7 +61,7 @@ the output directory. Output files include:
 
 def make_res_dir(SN_name, run_type, csm, normalization, LumTthresh, output_dir, n_steps):
     filename = SN_name + '_' + run_type + '_csm-' + str(csm) \
-               + '_normalized' + str(normalization) + 'TreshLum' + str(LumTthresh)
+               + '_normalized' + str(normalization) + '_TreshLum' + str(LumTthresh)
     res_dir = os.path.join('mcmc_results', output_dir, str(n_steps) + 'step', filename)
     if not os.path.exists(res_dir):
         if not os.path.exists(os.path.join('mcmc_results', output_dir, str(n_steps) + 'step')):
