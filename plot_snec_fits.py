@@ -104,7 +104,7 @@ def plot_lum_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
                 y_fit = y_fit * S
                 # y_fit_on_data_times = y_fit_on_data_times * S
                 ax.plot(x_plotting, np.log10(y_fit), alpha=0.1, color='purple')
-                log_likeli.append(mcmc_snec.calc_lum_likelihood(requested, data, surrounding_values, normalization, LumTthreshold))
+                log_likeli.append(mcmc_snec.calc_lum_likelihood(requested, data_dict, surrounding_values, normalization, LumTthreshold))
     log_likeli = np.mean(log_likeli)
     data_dy0 = np.log10(data_y + dy0) - np.log10(data_y)
     data_dy1 = np.log10(data_y + dy1) - np.log10(data_y)
@@ -121,7 +121,8 @@ def plot_lum_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
     return ax
 
 
-def plot_veloc_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold):
+def plot_veloc_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold):
+    data = data_dict['veloc']
     data_x = data['t_from_discovery']
     data_y = data['veloc']
     data_dy = data['dveloc']
@@ -142,7 +143,7 @@ def plot_veloc_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, normalizat
             if not isinstance(y_fit, str):
                 ax.plot(x_plotting, y_fit, alpha=0.1, color='purple')
                 log_likeli.append(
-                    mcmc_snec.calc_veloc_likelihood(requested, data, surrounding_values, normalization, LumTthreshold))
+                    mcmc_snec.calc_veloc_likelihood(requested, data_dict, surrounding_values, normalization, LumTthreshold))
     log_likeli = np.mean(log_likeli)
     # real observations for the SN
     ax.errorbar(data_x, data_y, yerr=data_dy, marker='o', linestyle='None', color='k')
@@ -152,7 +153,8 @@ def plot_veloc_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, normalizat
     return ax
 
 
-def plot_mag_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold):
+def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold):
+    data = data_dict['mag']
     filters = list(data['filter'].unique())
     data_x = data['t_from_discovery']
     y_fit = {}
@@ -175,7 +177,7 @@ def plot_mag_with_fit(data, sampler_df, ranges_dict, n_walkers, ax, normalizatio
                     # multiply whole graph by scaling factor
                     y_fit[filt] = y_fit[filt] -2.5*np.log10(S)
                     ax.plot(x_plotting, y_fit[filt], color=colors[filt], alpha=0.1)
-                    log_likeli.append(mcmc_snec.calc_mag_likelihood(requested, data, surrounding_values, normalization, LumTthreshold))
+                    log_likeli.append(mcmc_snec.calc_mag_likelihood(requested, data_dict, surrounding_values, normalization, LumTthreshold))
     log_likeli = np.mean(log_likeli)
     for filt in filters:
         data_filt = data.loc[data['filter'] == filt]
