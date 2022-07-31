@@ -86,16 +86,18 @@ def plot_lum_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
             if LumTthreshold:
                 max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], ranges_dict, data_x_moved)
                 data = data.loc[data_x_moved <= max_x]
+                data_x_moved = data['t_from_discovery'] - T
                 x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
             else:
                 x_plotting = np.linspace(-T, 200-T, 2001)
-            y_fit = mcmc_snec.interp_yfit(requested, ranges_dict, 'lum', x_plotting)
-            if not isinstance(y_fit, str):
+            y_fit_plotting = mcmc_snec.interp_yfit(requested, ranges_dict, 'lum', x_plotting)
+            y_fit_on_data_times = mcmc_snec.interp_yfit(requested, ranges_dict, 'lum', data_x_moved)
+            if not isinstance(y_fit_plotting, str):
                 # multiply whole graph by scaling factor
-                y_fit = y_fit * S
-                # y_fit_on_data_times = y_fit_on_data_times * S
-                ax.plot(x_plotting, np.log10(y_fit), alpha=0.1, color='purple')
-                log_likeli.append(mcmc_snec.log_likelihood(requested, data_dict, ranges_dict, 'lum', LumTthreshold, normalization))
+                y_fit_plotting = y_fit_plotting * S
+                y_fit_on_data_times = y_fit_on_data_times * S
+                ax.plot(x_plotting, np.log10(y_fit_plotting), alpha=0.1, color='purple')
+                log_likeli.append(mcmc_snec.calc_likelihood(data_x_moved, data_y, dy0, y_fit_on_data_times, normalization))
     log_likeli = np.mean(log_likeli)
     data_dy0 = np.log10(data_y + dy0) - np.log10(data_y)
     data_dy1 = np.log10(data_y + dy1) - np.log10(data_y)
@@ -126,13 +128,13 @@ def plot_veloc_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, norma
             # always truncate by temp thresh for veloc
             max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], ranges_dict, data_x_moved)
             data = data.loc[data_x_moved <= max_x]
+            data_x_moved = data['t_from_discovery'] - T
             x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
-            x_plotting_moved = x_plotting - T
-            y_fit = mcmc_snec.interp_yfit(requested, ranges_dict, 'veloc', x_plotting)
-            if not isinstance(y_fit, str):
-                ax.plot(x_plotting, y_fit, alpha=0.1, color='purple')
-                log_likeli.append(
-                    mcmc_snec.log_likelihood(requested, data_dict, ranges_dict, 'veloc', LumTthreshold, normalization))
+            y_fit_plotting = mcmc_snec.interp_yfit(requested, ranges_dict, 'veloc', x_plotting)
+            y_fit_on_data_times = mcmc_snec.interp_yfit(requested, ranges_dict, 'veloc', data_x_moved)
+            if not isinstance(y_fit_plotting, str):
+                ax.plot(x_plotting, y_fit_plotting, alpha=0.1, color='purple')
+                log_likeli.append(mcmc_snec.calc_likelihood(data_x_moved, data_y, data_dy, y_fit_on_data_times, normalization))
     log_likeli = np.mean(log_likeli)
     # real observations for the SN
     ax.errorbar(data_x, data_y, yerr=data_dy, marker='o', linestyle='None', color='k')
@@ -146,7 +148,8 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
     data = data_dict['mag']
     filters = list(data['filter'].unique())
     data_x = data['t_from_discovery']
-    y_fit = {}
+    y_fit_plotting = {}
+    y_fit_on_data_times = {}
     log_likeli = []
     for i in range(n_walkers):
         [Mzams, Ni, E, R, K, Mix, S, T] = sampler_df.iloc[i]
@@ -158,15 +161,19 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
             data = data.loc[data_x_moved <= max_x]
             x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
             for filt in filters:
-                y_fit[filt] = mcmc_snec.interp_yfit(requested, ranges_dict, 'mag', x_plotting, filter=filt)
-                if not isinstance(y_fit, str):
+                data_filt = data.loc[data['filter'] == filt]
+                data_x_filt_moved = data_filt['t_from_discovery'] - T
+                data_y_filt = data_filt['abs_mag']
+                data_dy_filt = data_filt['dmag']
+                y_fit_plotting[filt] = mcmc_snec.interp_yfit(requested, ranges_dict, 'mag', x_plotting)
+                y_fit_on_data_times[filt] = mcmc_snec.interp_yfit(requested, ranges_dict, 'mag', data_x_filt_moved)
+                if not isinstance(y_fit_plotting[filt], str):
                     # multiply whole graph by scaling factor
-                    y_fit[filt] = y_fit[filt] -2.5*np.log10(S)
-                    ax.plot(x_plotting, y_fit[filt], color=colors[filt], alpha=0.1)
-
-                    log_likeli.append(
-                        mcmc_snec.log_likelihood(requested, data_dict, ranges_dict, 'mag', LumTthreshold,
-                                                 normalization))
+                    y_fit_plotting[filt] = y_fit_plotting[filt] -2.5*np.log10(S)
+                    y_fit_on_data_times[filt] = y_fit_on_data_times[filt] - 2.5 * np.log10(S)
+                    ax.plot(x_plotting, y_fit_plotting[filt], color=colors[filt], alpha=0.1)
+                    log_likeli.append(mcmc_snec.calc_likelihood(data_x_filt_moved, data_y_filt, data_dy_filt,
+                                                                y_fit_on_data_times[filt], normalization))
     log_likeli = np.mean(log_likeli)
     for filt in filters:
         data_filt = data.loc[data['filter'] == filt]

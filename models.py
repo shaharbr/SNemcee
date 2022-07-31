@@ -97,16 +97,16 @@ def load_surrounding_models_local(models, requested, ranges_dict, fitting_type, 
                 for R in surrouding_values['R']:
                     for K in surrouding_values['K']:
                         for Mix in surrouding_values['Mix']:
-                            if 'lum' in fitting_type or 'combined' in fitting_type:
+                            if 'lum' in fitting_type:
                                 if models['lum'][Mzams][Ni][E][R][K][Mix] is None:
                                     models['lum'][Mzams][Ni][E][R][K][Mix] = load_model(Mzams, Ni, E, R, K, Mix, 'lum')
-                            if 'veloc' in fitting_type or 'combined' in fitting_type:
+                            if 'veloc' in fitting_type:
                                 if models['veloc'][Mzams][Ni][E][R][K][Mix] is None:
                                     models['veloc'][Mzams][Ni][E][R][K][Mix] = load_model(Mzams, Ni, E, R, K, Mix, 'veloc')
-                            if 'mag' in fitting_type or 'combined' in fitting_type:
+                            if 'mag' in fitting_type:
                                 if models['mag'][Mzams][Ni][E][R][K][Mix] is None:
                                     models['mag'][Mzams][Ni][E][R][K][Mix] = load_model(Mzams, Ni, E, R, K, Mix, 'mag')
-                            if LumTthreshold:
+                            if 'temp' in fitting_type or LumTthreshold:
                                 if models['temp'][Mzams][Ni][E][R][K][Mix] is None:
                                     models['temp'][Mzams][Ni][E][R][K][Mix] = load_model(Mzams, Ni, E, R, K, Mix, 'temp')
     return models

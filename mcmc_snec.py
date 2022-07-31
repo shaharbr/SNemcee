@@ -123,6 +123,7 @@ def chi_square_norm(x, y, dy, x_fit, y_fit):
 
 def interp_yfit(theta, ranges_dict, fitting_type, data_x, filter=False):
     surrounding_values = mod.get_surrouding_values(theta[0:6], ranges_dict)
+    load_surrounding_models(theta[0:6], ranges_dict, fitting_type)
     y_fit = interp.snec_interpolator(theta[0:6], surrounding_values, models[fitting_type], data_x, filter)
     return y_fit
 
@@ -139,6 +140,17 @@ def temp_thresh_cutoff(requested_theta, ranges_dict, data_x):
             max_x = np.max(x_out)
     return max_x, temp_fit
 
+
+def calc_likelihood(data_x, data_y, data_dy, y_fit, normalization):
+    # calculate the log likelihood
+    df = len(data_y) - 1
+    if normalization:
+        norm = len(data_y)
+    else:
+        norm = 1
+    return chi2.logpdf(chi_square_norm(data_x, data_y, data_dy, data_x, y_fit), df) / norm
+
+
 def calc_lum_likelihood(theta, data_dict, ranges_dict, normalization, LumTthreshold=False):
     data = data_dict['lum']
     data_x = data['t_from_discovery']
@@ -153,13 +165,8 @@ def calc_lum_likelihood(theta, data_dict, ranges_dict, normalization, LumTthresh
     if not isinstance(y_fit, str):
         # multiply whole graph by scaling factor
         y_fit = y_fit * theta[6]
-        # calculate the log likelihood
-        df = len(data_y) - 1
-        if normalization:
-            norm = len(data_y)
-        else:
-            norm = 1
-        return chi2.logpdf(chi_square_norm(data_x_moved, data_y, data_dy, data_x_moved, y_fit), df) / norm
+        likeli = calc_likelihood(data_x_moved, data_y, data_dy, y_fit, normalization)
+        return likeli
     else:
         # print('impossible SN')
         return - np.inf
@@ -179,12 +186,8 @@ def calc_veloc_likelihood(theta, data_dict, ranges_dict, normalization):
     y_fit = interp_yfit(theta, ranges_dict, 'veloc', data_x_moved)
     if not isinstance(y_fit, str):
         # calculate the log likelihood
-        df = len(data_y) - 1
-        if normalization:
-            norm = len(data_y)
-        else:
-            norm = 1
-        return chi2.logpdf(chi_square_norm(data_x_moved, data_y, data_dy, data_x_moved, y_fit), df) / norm
+        likeli = calc_likelihood(data_x_moved, data_y, data_dy, y_fit, normalization)
+        return likeli
     else:
         # print('impossible SN')
         return - np.inf
@@ -192,7 +195,7 @@ def calc_veloc_likelihood(theta, data_dict, ranges_dict, normalization):
 
 def calc_mag_likelihood(theta, data_dict, ranges_dict, normalization):
     data = data_dict['mag']
-    log_likeli = 0
+    likeli = 0
     any_filter_data = False
     y_fit = {}
     filters = list(data['filter'].unique())
@@ -212,16 +215,11 @@ def calc_mag_likelihood(theta, data_dict, ranges_dict, normalization):
             # multiply whole graph by scaling factor
             y_fit[filt] = y_fit[filt] -2.5*np.log10(theta[6])
             # calculate the log likelihood
-            df = len(data_y_filt) - 1
-            if normalization:
-                norm = len(data_y_filt)
-            else:
-                norm = 1
-            log_likeli += chi2.logpdf(chi_square_norm(data_x_filt_moved, data_y_filt, data_dy_filt,
-                                                      data_x_filt_moved, y_fit[filt]), df) / norm
+            likeli += calc_likelihood(data_x_filt_moved, data_y_filt, data_dy_filt, y_fit[filt],
+                                      normalization)
             any_filter_data = True
     if any_filter_data:
-        return log_likeli
+        return likeli
     else:
         return - np.inf
 
