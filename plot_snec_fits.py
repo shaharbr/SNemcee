@@ -43,24 +43,34 @@ def get_param_results_dict(sampler_df, ranges_dict):
     return dict
 
 
+def rounded_str(x):
+    if not np.isinf(x) and np.abs(x) > 0.0000001:
+        rounded = round(x, 2-int(np.floor(np.log10(abs(x)))))
+        if rounded > 100:
+            rounded = int(rounded)
+    else:
+        rounded = 0
+    return str(rounded)
+
+
 def result_text_from_dict(sampler_df, ranges_dict):
     param_dict = get_param_results_dict(sampler_df, ranges_dict)
     params = list(ranges_dict.keys())
     res_text = ''
     for param in params:
         if (param != 'K') & (param != 'R'):
-            res_text += param + ': ' + mcmc_snec.rounded_str(param_dict[param]) + r'$\pm$ [' +\
-                            mcmc_snec.rounded_str(param_dict[param+'_lower']) + ',' +\
-                            mcmc_snec.rounded_str(param_dict[param+'_upper']) + ']\n'
+            res_text += param + ': ' + rounded_str(param_dict[param]) + r'$\pm$ [' +\
+                            rounded_str(param_dict[param+'_lower']) + ',' +\
+                            rounded_str(param_dict[param+'_upper']) + ']\n'
     if (param_dict['K'] == 0) & (param_dict['R'] == 0):
         res_text += 'no CSM'
     else:
-        res_text += 'K' + ': ' + mcmc_snec.rounded_str(param_dict['K']) + r'$\pm$ [' + \
-                    mcmc_snec.rounded_str(param_dict['K_lower']) + ',' + \
-                    mcmc_snec.rounded_str(param_dict['K_upper']) + ']\n'
-        res_text += 'R' + ': ' + mcmc_snec.rounded_str(param_dict['R']) + r'$\pm$ [' + \
-                    mcmc_snec.rounded_str(param_dict['R_lower']) + ',' + \
-                    mcmc_snec.rounded_str(param_dict['R_upper']) + ']\n'
+        res_text += 'K' + ': ' + rounded_str(param_dict['K']) + r'$\pm$ [' + \
+                    rounded_str(param_dict['K_lower']) + ',' + \
+                    rounded_str(param_dict['K_upper']) + ']\n'
+        res_text += 'R' + ': ' + rounded_str(param_dict['R']) + r'$\pm$ [' + \
+                    rounded_str(param_dict['R_lower']) + ',' + \
+                    rounded_str(param_dict['R_upper']) + ']\n'
     return res_text
 
 
