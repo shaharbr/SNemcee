@@ -415,7 +415,7 @@ def emcee_fit_params(SN_name, res_dir, n_walkers, n_steps, burn_in, ranges_dict,
         n_params = 6
     if init_guesses is None:
         init_guesses = initial_guesses(ranges_dict, n_walkers, csm)
-    mod.initialize_empty_models_dict(models, ranges_dict)
+    initialize_empty_models(ranges_dict)
     data = load_SN_data(fitting_type, SN_name)
     time_now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     write_params_file(ranges_dict, SN_name, n_walkers, n_steps,
@@ -425,3 +425,8 @@ def emcee_fit_params(SN_name, res_dir, n_walkers, n_steps, burn_in, ranges_dict,
                                     args=[data, ranges_dict, fitting_type, csm, LumTthreshold, normalization, nonuniform_priors])
     sampler.run_mcmc(init_guesses, n_steps)
     return sampler
+
+
+def initialize_empty_models(ranges_dict):
+    mod.initialize_empty_models_dict(models, ranges_dict)
+

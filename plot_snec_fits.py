@@ -293,6 +293,7 @@ def plot_result_fit(result_path, plot_types, ax):
     run_params_path = os.path.join(result_path, 'run_parameters.csv')
     run_params = pd.read_csv(run_params_path, index_col=0).T
     ranges_dict = import_ranges(run_params.columns.values, run_params)
+    mcmc_snec.initialize_empty_models(ranges_dict)
     if 'lum' in plot_types:
         args = get_args_from_file(result_path, ax, 'lum')
         plot_lum_with_fit(*args)
