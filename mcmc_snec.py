@@ -121,10 +121,16 @@ def chi_square_norm(x, y, dy, x_fit, y_fit):
     return np.sum(((y - y_fit_on_data_x) / dy) ** 2)
 
 
+def interp_yfit(theta, ranges_dict, fitting_type, data_x, filter=False):
+    surrounding_values = mod.get_surrouding_values(theta[0:6], ranges_dict)
+    y_fit = interp.snec_interpolator(theta[0:6], surrounding_values, models[fitting_type], data_x, filter)
+    return y_fit
+
+
 # TODO this step can introduce some bias - SNe that don't have early velocities
 #  will select against models that cool fast
-def temp_thresh_cutoff(requested_theta, surrounding_values, data_x):
-    temp_fit = interp.snec_interpolator(requested_theta[0:6], surrounding_values, models['temp'], data_x)
+def temp_thresh_cutoff(requested_theta, ranges_dict, data_x):
+    temp_fit = interp_yfit(requested_theta, ranges_dict, 'temp', data_x)
     max_x = 0
     if not isinstance(temp_fit, str):
         if len(temp_fit[temp_fit >= T_thresh]) > 0:
@@ -133,17 +139,17 @@ def temp_thresh_cutoff(requested_theta, surrounding_values, data_x):
             max_x = np.max(x_out)
     return max_x, temp_fit
 
-def calc_lum_likelihood(theta, data_dict, surrounding_values, normalization, LumTthreshold=False):
+def calc_lum_likelihood(theta, data_dict, ranges_dict, normalization, LumTthreshold=False):
     data = data_dict['lum']
     data_x = data['t_from_discovery']
     data_x_moved = data_x - theta[7]
     if LumTthreshold:
-        max_x, temp_fit = temp_thresh_cutoff(theta[0:6], surrounding_values, data_x_moved)
+        max_x, temp_fit = temp_thresh_cutoff(theta[0:6], ranges_dict, data_x_moved)
         data = data.loc[data_x_moved <= max_x]
         data_x_moved = data_x_moved[data_x_moved <= max_x]
     data_y = data['Lum']
     data_dy = data['dLum0']
-    y_fit = interp.snec_interpolator(theta[0:6], surrounding_values, models['lum'], data_x_moved)
+    y_fit = interp_yfit(theta, ranges_dict, 'lum', data_x_moved)
     if not isinstance(y_fit, str):
         # multiply whole graph by scaling factor
         y_fit = y_fit * theta[6]
@@ -159,18 +165,18 @@ def calc_lum_likelihood(theta, data_dict, surrounding_values, normalization, Lum
         return - np.inf
 
 
-def calc_veloc_likelihood(theta, data_dict, surrounding_values, normalization):
+def calc_veloc_likelihood(theta, data_dict, ranges_dict, normalization):
     data = data_dict['veloc']
     data_x = data['t_from_discovery']
     data_x_moved = data_x - theta[7]
     # apply temperature threshold on time
-    max_x, temp_fit = temp_thresh_cutoff(theta[0:6], surrounding_values, data_x_moved)
+    max_x, temp_fit = temp_thresh_cutoff(theta[0:6], ranges_dict, data_x_moved)
     data = data.loc[data_x_moved <= max_x]
     data_x_moved = data_x_moved[data_x_moved <= max_x]
     # veloc data
     data_y = data['veloc']
     data_dy = data['dveloc']
-    y_fit = interp.snec_interpolator(theta[0:6], surrounding_values, models['veloc'], data_x_moved)
+    y_fit = interp_yfit(theta, ranges_dict, 'veloc', data_x_moved)
     if not isinstance(y_fit, str):
         # calculate the log likelihood
         df = len(data_y) - 1
@@ -184,7 +190,7 @@ def calc_veloc_likelihood(theta, data_dict, surrounding_values, normalization):
         return - np.inf
 
 
-def calc_mag_likelihood(theta, data_dict, surrounding_values, normalization):
+def calc_mag_likelihood(theta, data_dict, ranges_dict, normalization):
     data = data_dict['mag']
     log_likeli = 0
     any_filter_data = False
@@ -193,7 +199,7 @@ def calc_mag_likelihood(theta, data_dict, surrounding_values, normalization):
     data_x = data['t_from_discovery']
     data_x_moved = data_x - theta[7]
     # apply temperature threshold on time
-    max_x, temp_fit = temp_thresh_cutoff(theta[0:6], surrounding_values, data_x_moved)
+    max_x, temp_fit = temp_thresh_cutoff(theta[0:6], ranges_dict, data_x_moved)
     data = data.loc[data_x_moved <= max_x]
     # mag data
     for filt in filters:
@@ -201,8 +207,7 @@ def calc_mag_likelihood(theta, data_dict, surrounding_values, normalization):
         data_x_filt_moved = data_filt['t_from_discovery'] - theta[7]
         data_y_filt = data_filt['abs_mag']
         data_dy_filt = data_filt['dmag']
-        y_fit[filt] = interp.snec_interpolator(theta[0:6], surrounding_values, models['mag'], data_x_filt_moved,
-                                               filter=filt)
+        y_fit[filt] = interp_yfit(theta, ranges_dict, 'mag', data_x_filt_moved, filter=filt)
         if not isinstance(y_fit[filt], str):
             # multiply whole graph by scaling factor
             y_fit[filt] = y_fit[filt] -2.5*np.log10(theta[6])
@@ -236,9 +241,8 @@ def log_likelihood(theta, data, ranges_dict, fitting_type, LumTthreshold, normal
     # print(ranges_list)
     if theta_in_range(theta, ranges_dict):
         # print('ok SN')
-        surrounding_values = mod.get_surrouding_values(theta[0:6], ranges_dict)
         load_surrounding_models(theta[0:6], ranges_dict, fitting_type, LumTthreshold)
-        args = [theta, data, surrounding_values, normalization]
+        args = [theta, data, ranges_dict, normalization]
         # TODO make this run any combination of fitting type based on "if in", for, add
         if fitting_type == 'lum':
             args.append(LumTthreshold)

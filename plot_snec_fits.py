@@ -5,14 +5,11 @@ from matplotlib.lines import Line2D
 import os
 import mcmc_snec
 import re
-import snec_model_interpolator as interp
 import colorful_corner_plot as color_corner
-import models as mod
 
 
 T_thresh = 10 ** 3.5
 extend_tail = False
-models = {}
 filters = ['u', 'g', 'r', 'i', 'z', 'U', 'B', 'V', 'R', 'I']
 colors = {'u': 'purple', 'g': 'teal', 'r': 'red', 'i': 'maroon', 'z': 'black', 'U': 'purple',
           'B': 'blue', 'V': 'green', 'R': 'red', 'I': 'maroon'}
@@ -74,10 +71,6 @@ def open_reshape_3d_array(output_dir, type, step):
     return array_3d
 
 
-def load_surrounding_models(requested, ranges_dict, fitting_type, LumTthreshold=False):
-    mod.load_surrounding_models_local(models, requested, ranges_dict, fitting_type, LumTthreshold)
-
-
 def plot_lum_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold):
     data = data_dict['lum']
     data_x = data['t_from_discovery']
@@ -89,22 +82,20 @@ def plot_lum_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
         [Mzams, Ni, E, R, K, Mix, S, T] = sampler_df.iloc[i]
         requested = [Mzams, Ni, E, R, K, Mix, S, T]
         if mcmc_snec.theta_in_range(requested, ranges_dict):
-            surrounding_values = mod.get_surrouding_values(requested[0:6], ranges_dict)
-            load_surrounding_models(requested[0:6], ranges_dict, 'lum', LumTthreshold)
             data_x_moved = data_x - T
             if LumTthreshold:
-                max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], surrounding_values, data_x_moved)
+                max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], ranges_dict, data_x_moved)
                 data = data.loc[data_x_moved <= max_x]
                 x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
             else:
                 x_plotting = np.linspace(-T, 200-T, 2001)
-            y_fit = interp.snec_interpolator(requested[0:6], surrounding_values, models['lum'], x_plotting)
+            y_fit = mcmc_snec.interp_yfit(requested, ranges_dict, 'lum', x_plotting)
             if not isinstance(y_fit, str):
                 # multiply whole graph by scaling factor
                 y_fit = y_fit * S
                 # y_fit_on_data_times = y_fit_on_data_times * S
                 ax.plot(x_plotting, np.log10(y_fit), alpha=0.1, color='purple')
-                log_likeli.append(mcmc_snec.calc_lum_likelihood(requested, data_dict, surrounding_values, normalization, LumTthreshold))
+                log_likeli.append(mcmc_snec.log_likelihood(requested, data_dict, ranges_dict, 'lum', LumTthreshold, normalization))
     log_likeli = np.mean(log_likeli)
     data_dy0 = np.log10(data_y + dy0) - np.log10(data_y)
     data_dy1 = np.log10(data_y + dy1) - np.log10(data_y)
@@ -131,19 +122,17 @@ def plot_veloc_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, norma
         [Mzams, Ni, E, R, K, Mix, S, T] = sampler_df.iloc[i]
         requested = [Mzams, Ni, E, R, K, Mix, S, T]
         if mcmc_snec.theta_in_range(requested, ranges_dict):
-            surrounding_values = mod.get_surrouding_values(requested[0:6], ranges_dict)
-            load_surrounding_models(requested[0:6], ranges_dict, 'veloc')
             data_x_moved = data_x - T
             # always truncate by temp thresh for veloc
-            max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], surrounding_values, data_x_moved)
+            max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], ranges_dict, data_x_moved)
             data = data.loc[data_x_moved <= max_x]
             x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
             x_plotting_moved = x_plotting - T
-            y_fit = interp.snec_interpolator(requested[0:6], surrounding_values, models['veloc'], x_plotting_moved)
+            y_fit = mcmc_snec.interp_yfit(requested, ranges_dict, 'veloc', x_plotting)
             if not isinstance(y_fit, str):
                 ax.plot(x_plotting, y_fit, alpha=0.1, color='purple')
                 log_likeli.append(
-                    mcmc_snec.calc_veloc_likelihood(requested, data_dict, surrounding_values, normalization, LumTthreshold))
+                    mcmc_snec.log_likelihood(requested, data_dict, ranges_dict, 'veloc', LumTthreshold, normalization))
     log_likeli = np.mean(log_likeli)
     # real observations for the SN
     ax.errorbar(data_x, data_y, yerr=data_dy, marker='o', linestyle='None', color='k')
@@ -163,21 +152,21 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
         [Mzams, Ni, E, R, K, Mix, S, T] = sampler_df.iloc[i]
         requested = [Mzams, Ni, E, R, K, Mix, S, T]
         if mcmc_snec.theta_in_range(requested, ranges_dict):
-            surrounding_values = mod.get_surrouding_values(requested[0:6], ranges_dict)
-            load_surrounding_models(requested[0:6], ranges_dict, 'mag')
             data_x_moved = data_x - T
             # always truncate by temp thresh for mag
-            max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], surrounding_values, data_x_moved)
+            max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], ranges_dict, data_x_moved)
             data = data.loc[data_x_moved <= max_x]
             x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
             for filt in filters:
-                y_fit[filt] = interp.snec_interpolator(requested[0:6], surrounding_values,
-                                                       models['mag'], x_plotting, filter=filt)
+                y_fit[filt] = mcmc_snec.interp_yfit(requested, ranges_dict, 'mag', x_plotting, filter=filt)
                 if not isinstance(y_fit, str):
                     # multiply whole graph by scaling factor
                     y_fit[filt] = y_fit[filt] -2.5*np.log10(S)
                     ax.plot(x_plotting, y_fit[filt], color=colors[filt], alpha=0.1)
-                    log_likeli.append(mcmc_snec.calc_mag_likelihood(requested, data_dict, surrounding_values, normalization, LumTthreshold))
+
+                    log_likeli.append(
+                        mcmc_snec.log_likelihood(requested, data_dict, ranges_dict, 'mag', LumTthreshold,
+                                                 normalization))
     log_likeli = np.mean(log_likeli)
     for filt in filters:
         data_filt = data.loc[data['filter'] == filt]
@@ -304,7 +293,6 @@ def plot_result_fit(result_path, plot_types, ax):
     run_params_path = os.path.join(result_path, 'run_parameters.csv')
     run_params = pd.read_csv(run_params_path, index_col=0).T
     ranges_dict = import_ranges(run_params.columns.values, run_params)
-    mod.initialize_empty_models_dict(models, ranges_dict)
     if 'lum' in plot_types:
         args = get_args_from_file(result_path, ax, 'lum')
         plot_lum_with_fit(*args)
