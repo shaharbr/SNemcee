@@ -107,7 +107,8 @@ def plot_lum_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
                 y_fit_plotting = y_fit_plotting * S
                 y_fit_on_data_times = y_fit_on_data_times * S
                 ax.plot(x_plotting, np.log10(y_fit_plotting), alpha=0.1, color='purple')
-                log_likeli.append(mcmc_snec.calc_likelihood(data_x_moved, data_y, dy0, y_fit_on_data_times, normalization))
+                # TODO ValueError: operands could not be broadcast together with shapes (76,) (62,)
+                log_likeli.append(mcmc_snec.calc_likelihood(data_x_moved, data['Lum'], data['dLum0'], y_fit_on_data_times, normalization))
     log_likeli = np.mean(log_likeli)
     data_dy0 = np.log10(data_y + dy0) - np.log10(data_y)
     data_dy1 = np.log10(data_y + dy1) - np.log10(data_y)
