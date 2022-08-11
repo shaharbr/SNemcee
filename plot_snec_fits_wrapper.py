@@ -8,25 +8,25 @@ import datetime
 
 time_now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-def lum_wCSM_vs_woCSM(SN_name, results_dir, output_dir):
+
+def lum_wCSM_vs_woCSM(SN_name, fitting_type, normalization, LumThreshold, results_dir, output_dir):
     fig, axs = plt.subplots(1, 2, sharey='row', figsize=(20, 12))
 
-    lum_csmTrue_name = SN_name + '_lum_csm-with_normalizedFalse_TreshLumFalse'
+    lum_csmTrue_name = SN_name + '_' + fitting_type + '_csm-with' + '_normalized' + str(normalization) \
+                 + '_TreshLum' + str(LumThreshold)
     lum_csmTrue_path = os.path.join(results_dir, lum_csmTrue_name)
 
-    lum_csmFalse_name = SN_name + '_lum_csm-without_normalizedFalse_TreshLumFalse'
+    lum_csmFalse_name = SN_name + '_' + fitting_type + '_csm-without' + '_normalized' + str(normalization) \
+                       + '_TreshLum' + str(LumThreshold)
     lum_csmFalse_path = os.path.join(results_dir, lum_csmFalse_name)
 
     plot_snec_fits.plot_result_fit(lum_csmTrue_path, 'lum', axs[0])
     plot_snec_fits.plot_result_fit(lum_csmFalse_path, 'lum', axs[1])
-
     axs[0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[0].set_xlabel('Rest-frame days from discovery', fontsize=14)
     axs[0].set_xlabel('Rest-frame days from discovery', fontsize=14)
-
     plt.tight_layout()
     fig.savefig(os.path.join(output_dir, SN_name+'_lum_csm_comparison.png'))
-
     plot_snec_fits.overlay_corner_plot([lum_csmFalse_path, lum_csmTrue_path], output_dir,
                                        ['without CSM', 'with CSM'], SN_name + '_lum_csm_comparison')
     return fig
@@ -68,14 +68,14 @@ def corner_plot(SN_name, fitting_type, csm, normalization, LumThreshold, results
                                        [model_name], model_name)
 
 
-def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, results_dir, output_dir):
+def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, results_dir, output_dir):
     fig, axs = plt.subplots(2, 3, sharey='row', figsize=(20, 12))
 
-    lum_name = SN_name + '_lum_csm-with_normalizedFalse_TreshLumFalse'
+    lum_name = SN_name + '_lum_csm-' + csm + '_normalizedFalse_TreshLum' + str(LumThreshold)
     lum_path = os.path.join(results_dir, lum_name)
-    lum_veloc_name = SN_name + '_lum-veloc_csm-with_normalizedFalse_TreshLumFalse'
+    lum_veloc_name = SN_name + '_lum-veloc_csm-' + csm + '_normalizedFalse_TreshLum' + str(LumThreshold)
     lum_veloc_path = os.path.join(results_dir, lum_veloc_name)
-    lum_veloc_normalized_name = SN_name + '_lum-veloc_csm-with_normalizedTrue_TreshLumFalse'
+    lum_veloc_normalized_name = SN_name + '_lum-veloc_csm-' + csm + '_normalizedTrue_TreshLum' + str(LumThreshold)
     lum_veloc_normalized_path = os.path.join(results_dir, lum_veloc_normalized_name)
 
     plot_snec_fits.plot_result_fit(lum_path, 'lum', axs[0, 0])
@@ -99,16 +99,14 @@ def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, results_dir, output_dir):
     return fig
 
 
-def lum_veloc_vs_mag_veloc(SN_name, results_dir, output_dir, LumTthresh=False):
+def lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, results_dir, output_dir):
     fig, axs = plt.subplots(3, 2, figsize=(20, 12))
 
-    if LumTthresh:
-        lum_veloc_name = SN_name + '_lum-veloc_csm-with_normalizedFalse_TreshLumTrue'
-    else:
-        lum_veloc_name = SN_name + '_lum-veloc_csm-with_normalizedFalse_TreshLumFalse'
+    lum_veloc_name = SN_name + '_lum-veloc_csm-' + csm + '_normalized' + str(normalization) \
+                     + '_TreshLum' + str(LumThreshold)
     lum_veloc_path = os.path.join(results_dir, lum_veloc_name)
-
-    mag_veloc_name = SN_name + '_mag-veloc_csm-with_normalizedFalse'
+    mag_veloc_name = SN_name + '_mag-veloc_csm-' + csm + '_normalized' + str(normalization) \
+                     + '_TreshLum' + str(LumThreshold)
     mag_veloc_path = os.path.join(results_dir, mag_veloc_name)
 
     plot_snec_fits.plot_result_fit(lum_veloc_path, 'lum', axs[0, 0])
@@ -132,17 +130,19 @@ def lum_veloc_vs_mag_veloc(SN_name, results_dir, output_dir, LumTthresh=False):
                                        SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum'+str(LumTthresh))
     return fig
 
+# TODO check the MCMC code for the twosteps
 
-def lum_veloc_onestep_vs_twostep(SN_name, results_dir, output_dir):
+def lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, results_dir, output_dir):
     fig, axs = plt.subplots(2, 3, sharey='row', figsize=(20, 12))
-
-    onestep_name = SN_name + '_lum-veloc_csm-with_normalizedFalse_TreshLumFalse'
+    onestep_name = SN_name + '_lum-veloc_csm-with_normalized' \
+                   + str(normalization) + '_TreshLum' + str(LumThreshold)
     onestep_path = os.path.join(results_dir, onestep_name)
-    twostep_priorNone_name = SN_name + '_lum_csm-twostep_normalizedFalse_TreshLumFalse'
+    twostep_priorNone_name = SN_name + '_lum-veloc_csm-twostep_normalized' \
+                             + str(normalization) + '_TreshLum' + str(LumThreshold)
     twostep_priorNone_path = os.path.join(results_dir, twostep_priorNone_name)
-    twostep_priorTrue_name = SN_name + '_lum_csm-twostep-carryover_normalizedFalse_TreshLumFalse'
+    twostep_priorTrue_name = SN_name + '_lum-veloc_csm-twostep-carryover_normalized' \
+                             + str(normalization) + '_TreshLum' + str(LumThreshold)
     twostep_priorTrue_path = os.path.join(results_dir, twostep_priorTrue_name)
-
 
     plot_snec_fits.plot_result_fit(onestep_path, 'lum', axs[0, 0])
     plot_snec_fits.plot_result_fit(twostep_priorNone_path, 'lum', axs[0, 1])
@@ -237,15 +237,13 @@ def main(argv):
         else:
             composite_plot(SN_name, type_fig, fitting_type, csm, normalization, LumThreshold, res_dir, step_dir)
     elif type_fig == 'csm_comparison':
-        lum_wCSM_vs_woCSM(SN_name, res_dir, step_dir)
+        lum_wCSM_vs_woCSM(SN_name, fitting_type, normalization, LumThreshold, res_dir, output_dir)
     elif type_fig == 'lum-mag-veloc_comparison':
-        lum_veloc_vs_mag_veloc(SN_name,res_dir, step_dir)
-    elif type_fig == 'lum-mag-veloc-TreshLum_comparison':
-        lum_veloc_vs_mag_veloc(SN_name,res_dir, step_dir, LumTthresh=True)
+        lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, res_dir, output_dir)
     elif type_fig == 'lum-veloc-normalized_comparison':
-        lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name,res_dir, step_dir)
+        lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, res_dir, output_dir)
     elif type_fig == 'lum-veloc-twostep_comparison':
-        lum_veloc_onestep_vs_twostep(SN_name,res_dir, step_dir)
+        lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, res_dir, output_dir)
 
 
 if __name__ == "__main__":
