@@ -5,6 +5,7 @@ from matplotlib.lines import Line2D
 import os
 import mcmc_snec
 import re
+import copy
 import colorful_corner_plot as color_corner
 
 
@@ -156,6 +157,7 @@ def plot_veloc_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, norma
 
 def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold):
     data = data_dict['mag']
+    data_og = copy.deepcopy(data)
     filters = list(data['filter'].unique())
     data_x = data['t_from_discovery']
     y_fit_plotting = {}
@@ -186,7 +188,7 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
                                                                 y_fit_on_data_times[filt], normalization))
     log_likeli = np.mean(log_likeli)
     for filt in filters:
-        data_filt = data.loc[data['filter'] == filt]
+        data_filt = data_og.loc[data_og['filter'] == filt]
         data_x = data_filt['t_from_discovery']
         data_y = data_filt['abs_mag']
         data_dy = data_filt['dmag']
