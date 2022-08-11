@@ -9,7 +9,7 @@ import copy
 import colorful_corner_plot as color_corner
 
 
-T_thresh = 10 ** 3.75
+T_thresh = 10 ** 3.5
 extend_tail = False
 # filters = ['u', 'g', 'r', 'i', 'z', 'U', 'B', 'V', 'R', 'I']
 filters = ['g', 'r', 'i', 'z', 'B', 'V', 'R', 'I']

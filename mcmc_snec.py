@@ -32,7 +32,7 @@ colors = {'u': 'purple', 'g': 'teal', 'r': 'red', 'i': 'maroon', 'z': 'black', '
 
 # multiplicative factor for SNEC's predicted photospheric velocities to Fe II velocities,
 # found to be equal about 1.4, by fitting to all the SNe in our sample
-T_thresh = 10 ** 3.75
+T_thresh = 10 ** 3.5
 models = {}
 
 
