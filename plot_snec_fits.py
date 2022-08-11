@@ -175,8 +175,8 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
                 data_x_filt_moved = data_filt['t_from_discovery'] - T
                 data_y_filt = data_filt['abs_mag']
                 data_dy_filt = data_filt['dmag']
-                y_fit_plotting[filt] = mcmc_snec.interp_yfit(requested, ranges_dict, 'mag', x_plotting)
-                y_fit_on_data_times[filt] = mcmc_snec.interp_yfit(requested, ranges_dict, 'mag', data_x_filt_moved)
+                y_fit_plotting[filt] = mcmc_snec.interp_yfit(requested, ranges_dict, 'mag', x_plotting, filt)
+                y_fit_on_data_times[filt] = mcmc_snec.interp_yfit(requested, ranges_dict, 'mag', data_x_filt_moved, filt)
                 if not isinstance(y_fit_plotting[filt], str):
                     # multiply whole graph by scaling factor
                     y_fit_plotting[filt] = y_fit_plotting[filt] -2.5*np.log10(S)
