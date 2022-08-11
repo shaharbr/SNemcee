@@ -399,7 +399,8 @@ def import_mag(SN_name):
     data_filepath = os.path.join(mag_path)
     data_mag = pd.read_csv(data_filepath, usecols=['dmag', 'filter', 'abs_mag', 't_from_discovery'])
     filters = list(data_mag['filter'].unique())
-    filters = list(set(filters).intersection(['u', 'g', 'r', 'i', 'z', 'U', 'B', 'V', 'R', 'I']))
+    # filters = list(set(filters).intersection(['u', 'g', 'r', 'i', 'z', 'U', 'B', 'V', 'R', 'I']))
+    filters = list(set(filters).intersection(['g', 'r', 'i', 'z', 'B', 'V', 'R', 'I']))
     data_mag = data_mag.loc[data_mag['filter'].isin(filters)]
     data_mag = data_mag.sort_values('t_from_discovery')
     return data_mag
