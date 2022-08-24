@@ -237,13 +237,13 @@ def main(argv):
         else:
             composite_plot(SN_name, type_fig, fitting_type, csm, normalization, LumThreshold, res_dir, step_dir)
     elif type_fig == 'csm_comparison':
-        lum_wCSM_vs_woCSM(SN_name, fitting_type, normalization, LumThreshold, res_dir, output_dir)
+        lum_wCSM_vs_woCSM(SN_name, fitting_type, normalization, LumThreshold, res_dir, step_dir)
     elif type_fig == 'lum-mag-veloc_comparison':
-        lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, res_dir, output_dir)
+        lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, res_dir, step_dir)
     elif type_fig == 'lum-veloc-normalized_comparison':
-        lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, res_dir, output_dir)
+        lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, res_dir, step_dir)
     elif type_fig == 'lum-veloc-twostep_comparison':
-        lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, res_dir, output_dir)
+        lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, res_dir, step_dir)
 
 
 if __name__ == "__main__":
