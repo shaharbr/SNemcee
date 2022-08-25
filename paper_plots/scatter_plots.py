@@ -6,19 +6,7 @@ import matplotlib.cm as cm
 import numpy as np
 
 
-
-list_results = ['2021-07-14_05-55-48_lum_SN2004a',
-                '2021-07-14_07-17-52_lum_SN2012ec',
-                '2021-07-14_07-03-07_lum_noCSM_SN2017eaw',
-                '2021-07-14_07-01-35_lum_SN2012aw',
-                '2021-07-14_06-51-58_lum_noCSM_SN2012ec',
-                '2021-07-14_06-41-38_lum_noCSM_SN2012aw',
-                '2021-07-14_06-11-00_lum_SN2004et_d5.9',
-                '2021-07-14_06-08-05_lum_noCSM_SN2004et_d5.9',
-                '2021-07-14_05-58-39_lum_noCSM_SN2004a',
-                '2021-07-14_07-34-21_lum_SN2017eaw']
-
-resdf = pd.DataFrame({'name':[],
+resdf_CSMwith = pd.DataFrame({'name':[],
                       'Mzams':[],'Mzams_lower':[],'Mzams_upper':[],
                       'Ni':[],'Ni_lower':[],'Ni_upper':[],
                       'E':[],'E_lower':[],'E_upper':[],
@@ -28,7 +16,7 @@ resdf = pd.DataFrame({'name':[],
                       'T':[],'T_lower':[],'T_upper':[],
                       'S':[],'S_lower':[],'S_upper':[]})
 
-resdf_noCSM = pd.DataFrame({'name':[],
+resdf_CSMwithout = pd.DataFrame({'name':[],
                       'Mzams':[],'Mzams_lower':[],'Mzams_upper':[],
                       'Ni':[],'Ni_lower':[],'Ni_upper':[],
                       'E':[],'E_lower':[],'E_upper':[],
@@ -36,24 +24,31 @@ resdf_noCSM = pd.DataFrame({'name':[],
                       'T':[],'T_lower':[],'T_upper':[],
                       'S':[],'S_lower':[],'S_upper':[]})
 
-for resdir in list_results:
-    resfile = pd.read_csv(os.path.join('..', '2021-07-14', resdir, 'final_results.csv'))
-    paramfile = pd.read_csv(os.path.join('..', '2021-07-14', resdir, 'run_parameters.csv'), index_col=0).T
-    resfile['name'] = str(paramfile.iloc[0]['SN_name'])
-    if 'noCSM' in resdir:
-        resdf_noCSM = resdf_noCSM.append(resfile)
-    else:
-        resdf = resdf.append(resfile)
+SN_names = ['SN2004a', 'SN2005cs', 'SN2008bk', 'SN2012aw', 'SN2012ec', 'SN2017eaw', 'SN2018aoq', 'SN2020bij']
+
+for SN_name in SN_names:
+    resfile_CSMwith = pd.read_csv(os.path.join('..', 'mcmc_results', '22_8_24', '700step',
+                                                  SN_name + '_lum_csm-with_normalizedFalse_TreshLumFalse',
+                                                  'final_results.csv'))
+    resfile_CSMwith['name'] = SN_name
+    resdf_CSMwith.append(resfile_CSMwith)
+    resfile_CSMwithout = pd.read_csv(os.path.join('..', 'mcmc_results', '22_8_24', '700step',
+                                                  SN_name + '_lum_csm-without_normalizedFalse_TreshLumFalse',
+                                                  'final_results.csv'))
+    resfile_CSMwithout['name'] = SN_name
+    resdf_CSMwithout.append(resfile_CSMwithout)
+    paramfile = pd.read_csv(os.path.join('..', 'mcmc_results', '22_8_24', '700step', SN_name+'_lum_csm-with_normalizedFalse_TreshLumFalse', 'run_parameters.csv'), index_col=0).T
+
 
 # resdf = resdf.sort_values(by='name')
 # resdf_noCSM = resdf_noCSM.sort_values(by='name')
-resdf_noCSM = resdf_noCSM.add_suffix('_noCSM')
-resdf_noCSM = resdf_noCSM.rename(columns={'name_noCSM':'name'})
+resdf_CSMwithout = resdf_CSMwithout.add_suffix('_noCSM')
+resdf_CSMwithout = resdf_CSMwithout.rename(columns={'name_noCSM':'name'})
 
-print(resdf)
-print(resdf_noCSM)
+print(resdf_CSMwith)
+print(resdf_CSMwithout)
 
-resdf = resdf.merge(resdf_noCSM, on='name')
+resdf = resdf_CSMwith.merge(resdf_CSMwithout, on='name')
 
 def plot_csm_scatter(param, csm_param, param_range, ax):
     y_list = list(resdf[param+'_noCSM'])
@@ -72,11 +67,11 @@ def plot_csm_scatter(param, csm_param, param_range, ax):
     if csm_param == 'K':
         marker_norm = 4
         color_norm = 50
-        param_examples = [10, 30, 50]
+        param_examples = [10, 30, 60]
     elif csm_param == 'R':
         marker_norm = 60
         color_norm = 700
-        param_examples = [200, 500, 800]
+        param_examples = [100, 500, 1000]
     for i in range(len(names)):
         l, = ax.plot(x_list[i], y_list[i], label=names[i], marker='o',
                      markersize=CSM[i]/marker_norm, color=cm.viridis(CSM[i]/color_norm),linestyle = 'None')
@@ -99,10 +94,18 @@ def plot_csm_scatter(param, csm_param, param_range, ax):
     # plt.savefig(os.path.join('figures', 'csm_effect_scatter_'+param+'_'+csm_param+'.png'))
     # plt.savefig(os.path.join('figures', 'csm_effect_scatter_' + param + '_' + csm_param + '.svg'))
 
-param_ranges = {'E':[0.4, 1.5], 'Mzams':[9, 17],
-                'Ni':[0.02, 0.12], 'Mix':[2, 8],
-                'S':[0.7, 1.2], 'T':[0,1.2]}
 
+
+
+Mzams_range = [9.0, 10.0, 11.0, 13.0, 15.0, 17.0]  # Progenitor ZAMS mass (solar mass)
+Ni_range = [0.001, 0.02, 0.07, 0.12]  # Ni mass (solar mass)
+E_final_range = [0.1, 0.3, 0.5, 0.9, 1.3, 1.7]  # Explosion energy (foe=10^51 erg)
+Mix_range = [2.0, 8.0]  # Ni mixing (solar mass)
+R_range = [0, 500, 1000]
+K_range = [0, 10, 30, 60]
+T_range = [-5, 2]  # time shift from assumed day of explosion (days)
+param_ranges = {'Mzams': Mzams_range, 'Ni': Ni_range, 'E': E_final_range,
+                    'R': R_range, 'K': K_range, 'Mix': Mix_range, 'S': [], 'T': T_range}
 
 
 fig, axs = plt.subplots(6, 2, figsize=(10,25))
