@@ -27,19 +27,20 @@ resdf_CSMwithout = pd.DataFrame({'name':[],
 SN_names = ['SN2004a', 'SN2005cs', 'SN2008bk', 'SN2012aw', 'SN2012ec', 'SN2017eaw', 'SN2018aoq', 'SN2020bij']
 
 for SN_name in SN_names:
+    print(SN_name + '_lum_csm-with_normalizedFalse_TreshLumFalse')
     resfile_CSMwith = pd.read_csv(os.path.join('..', 'mcmc_results', '22_8_24', '700step',
                                                   SN_name + '_lum_csm-with_normalizedFalse_TreshLumFalse',
                                                   'final_results.csv'))
+    print(resfile_CSMwith)
     resfile_CSMwith['name'] = SN_name
     resdf_CSMwith.append(resfile_CSMwith)
-    print(resdf_CSMwith)
 
     resfile_CSMwithout = pd.read_csv(os.path.join('..', 'mcmc_results', '22_8_24', '700step',
                                                   SN_name + '_lum_csm-without_normalizedFalse_TreshLumFalse',
                                                   'final_results.csv'))
     resfile_CSMwithout['name'] = SN_name
     resdf_CSMwithout.append(resfile_CSMwithout)
-    print(resdf_CSMwithout)
+    # print(resdf_CSMwithout)
 
     paramfile = pd.read_csv(os.path.join('..', 'mcmc_results', '22_8_24', '700step', SN_name+'_lum_csm-with_normalizedFalse_TreshLumFalse', 'run_parameters.csv'), index_col=0).T
 
