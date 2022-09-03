@@ -31,8 +31,8 @@ for SN_name in SN_names:
     resfile_CSMwith = pd.read_csv(os.path.join('..', 'mcmc_results', '22_8_24', '700step',
                                                   SN_name + '_lum_csm-with_normalizedFalse_TreshLumFalse',
                                                   'final_results.csv'))
-    print(resfile_CSMwith)
     resfile_CSMwith['name'] = SN_name
+    print(resfile_CSMwith)
     resdf_CSMwith = resdf_CSMwith.append(resfile_CSMwith)
     print(resdf_CSMwith)
 
@@ -41,6 +41,7 @@ for SN_name in SN_names:
                                                   SN_name + '_lum_csm-without_normalizedFalse_TreshLumFalse',
                                                   'final_results.csv'))
     resfile_CSMwithout['name'] = SN_name
+    print(resfile_CSMwithout)
     resdf_CSMwithout = resdf_CSMwithout.append(resfile_CSMwithout)
     print(resdf_CSMwithout)
 
