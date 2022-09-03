@@ -1,9 +1,7 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 import os
-import seaborn as sns
 import matplotlib.cm as cm
-import numpy as np
 
 
 resdf_CSMwith = pd.DataFrame({'name':[],
@@ -32,19 +30,12 @@ for SN_name in SN_names:
                                                   SN_name + '_lum_csm-with_normalizedFalse_TreshLumFalse',
                                                   'final_results.csv'))
     resfile_CSMwith['name'] = SN_name
-    print(resfile_CSMwith)
     resdf_CSMwith = resdf_CSMwith.append(resfile_CSMwith)
-    print(resdf_CSMwith)
-
-
     resfile_CSMwithout = pd.read_csv(os.path.join('..', 'mcmc_results', '22_8_24', '700step',
                                                   SN_name + '_lum_csm-without_normalizedFalse_TreshLumFalse',
                                                   'final_results.csv'))
     resfile_CSMwithout['name'] = SN_name
-    print(resfile_CSMwithout)
     resdf_CSMwithout = resdf_CSMwithout.append(resfile_CSMwithout)
-    print(resdf_CSMwithout)
-
     paramfile = pd.read_csv(os.path.join('..', 'mcmc_results', '22_8_24', '700step', SN_name+'_lum_csm-with_normalizedFalse_TreshLumFalse', 'run_parameters.csv'), index_col=0).T
 
 
@@ -57,7 +48,7 @@ resdf_CSMwithout = resdf_CSMwithout.rename(columns={'name_noCSM':'name'})
 
 resdf = resdf_CSMwith.merge(resdf_CSMwithout, on='name')
 
-def plot_csm_scatter(param, csm_param, param_range, ax):
+def plot_csm_scatter(param, param_range, ax):
     y_list = list(resdf[param+'_noCSM'])
     x_list = list(resdf[param])
     y_lower = list(resdf[param+'_lower_noCSM'])
@@ -65,35 +56,32 @@ def plot_csm_scatter(param, csm_param, param_range, ax):
     y_upper = list(resdf[param+'_upper_noCSM'])
     x_upper = list(resdf[param+'_upper'])
     names = list(resdf['name'])
-    CSM = list(resdf[csm_param])
+    K = list(resdf['K'])
+    R = list(resdf['R'])
     ax.plot(param_range, param_range, color='gray')
     ax.errorbar(x_list, y_list,
                 xerr=[x_lower, x_upper], yerr=[y_lower, y_upper],
                 linestyle='None', color='black')
     axes = []
-    if csm_param == 'K':
-        marker_norm = 4
-        color_norm = 50
-        param_examples = [10, 30, 60]
-    elif csm_param == 'R':
-        marker_norm = 60
-        color_norm = 700
-        param_examples = [100, 500, 1000]
+    K_color_norm = 50
+    K_examples = [10, 30, 60]
+    R_marker_norm = 60
+    R_examples = [100, 500, 1000]
     for i in range(len(names)):
         l, = ax.plot(x_list[i], y_list[i], label=names[i], marker='o',
-                     markersize=CSM[i]/marker_norm, color=cm.viridis(CSM[i]/color_norm),linestyle = 'None')
+                     markersize=R[i]/R_marker_norm, color=cm.viridis(K[i]/K_color_norm),linestyle = 'None')
         axes.append(l)
     ax.set_ylabel(param+' without CSM')
     ax.set_xlabel(param+' with CSM')
     ax.legend()
-    gll, = ax.plot([],[], markersize=param_examples[0]/marker_norm, marker='o', color=cm.viridis(param_examples[0]/color_norm),linestyle = 'None')
-    gl, = ax.plot([],[], markersize=param_examples[1]/marker_norm, marker='o', color=cm.viridis(param_examples[1]/color_norm),linestyle = 'None')
-    ga, = ax.plot([],[], markersize=param_examples[2]/marker_norm, marker='o', color=cm.viridis(param_examples[2]/color_norm),linestyle = 'None')
+    gll, = ax.plot([],[], markersize=R_examples[0]/R_marker_norm, marker='o', color=cm.viridis(K_examples[0]/K_color_norm),linestyle = 'None')
+    gl, = ax.plot([],[], markersize=R_examples[1]/R_marker_norm, marker='o', color=cm.viridis(K_examples[1]/K_color_norm),linestyle = 'None')
+    ga, = ax.plot([],[], markersize=R_examples[2]/R_marker_norm, marker='o', color=cm.viridis(K_examples[2]/K_color_norm),linestyle = 'None')
     legend1 = ax.legend(axes, names, loc='upper left', fontsize=12)
     ax.legend((gll,gl,ga),
-           (str(param_examples[0]), str(param_examples[1]), str(param_examples[2])),
+           ('K='+str(K_examples[0])+' R='+str(R_examples[0]), 'K='+str(K_examples[1])+' R='+str(R_examples[1]),
+            'K='+str(K_examples[2])+' R='+str(R_examples[2])),
            scatterpoints=1,
-           title=csm_param,
            loc='lower left',
            ncol=1,
            fontsize=12)
@@ -115,18 +103,16 @@ param_ranges = {'Mzams': Mzams_range, 'Ni': Ni_range, 'E': E_final_range,
                     'R': R_range, 'K': K_range, 'Mix': Mix_range, 'S': [], 'T': T_range}
 
 
-fig, axs = plt.subplots(6, 2, figsize=(10,25))
+fig, axs = plt.subplots(6, 1, figsize=(10,25))
 
 params = ['E', 'Mzams', 'Ni', 'Mix', 'S', 'T']
-csm_params = ['K', 'R']
 
 for i in range(6):
-    for j in range(2):
-        plot_csm_scatter(params[i], csm_params[j], param_ranges[params[i]], axs[i,j])
+    plot_csm_scatter(params[i], param_ranges[params[i]], axs[i])
 
 plt.tight_layout()
 plt.savefig(os.path.join('figures', 'csm_effect_scatter.png'))
-plt.savefig(os.path.join('figures', 'csm_effect_scatter.svg'))
+plt.savefig(os.path.join('figures', 'csm_effect_scatter.pdf'))
 
 
 
