@@ -32,11 +32,15 @@ for SN_name in SN_names:
                                                   'final_results.csv'))
     resfile_CSMwith['name'] = SN_name
     resdf_CSMwith.append(resfile_CSMwith)
+    print(resdf_CSMwith)
+
     resfile_CSMwithout = pd.read_csv(os.path.join('..', 'mcmc_results', '22_8_24', '700step',
                                                   SN_name + '_lum_csm-without_normalizedFalse_TreshLumFalse',
                                                   'final_results.csv'))
     resfile_CSMwithout['name'] = SN_name
     resdf_CSMwithout.append(resfile_CSMwithout)
+    print(resdf_CSMwithout)
+
     paramfile = pd.read_csv(os.path.join('..', 'mcmc_results', '22_8_24', '700step', SN_name+'_lum_csm-with_normalizedFalse_TreshLumFalse', 'run_parameters.csv'), index_col=0).T
 
 
@@ -45,8 +49,7 @@ for SN_name in SN_names:
 resdf_CSMwithout = resdf_CSMwithout.add_suffix('_noCSM')
 resdf_CSMwithout = resdf_CSMwithout.rename(columns={'name_noCSM':'name'})
 
-print(resdf_CSMwith)
-print(resdf_CSMwithout)
+
 
 resdf = resdf_CSMwith.merge(resdf_CSMwithout, on='name')
 
