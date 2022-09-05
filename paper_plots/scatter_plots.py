@@ -63,7 +63,7 @@ def plot_csm_scatter(param, param_range, ax):
                 xerr=[x_lower, x_upper], yerr=[y_lower, y_upper],
                 linestyle='None', color='black')
     axes = []
-    K_color_norm = -50
+    K_color_norm = 0.1
     K_examples = [10, 30, 60]
     R_marker_norm = 80
     R_examples = [100, 500, 1000]
