@@ -55,7 +55,7 @@ def plot_csm_scatter(param, param_range, ax):
     x_lower = list(resdf[param+'_lower'])
     y_upper = list(resdf[param+'_upper_noCSM'])
     x_upper = list(resdf[param+'_upper'])
-    names = list(resdf['name'])
+    names = [name[4:] for name in list(resdf['name'])]
     K = list(resdf['K'])
     R = list(resdf['R'])
     ax.plot(param_range, param_range, color='gray')
@@ -67,9 +67,10 @@ def plot_csm_scatter(param, param_range, ax):
     K_examples = [10, 30, 60]
     R_marker_norm = 60
     R_examples = [100, 500, 1000]
-    for i in range(len(names)):
+    for i, txt in enumerate(names):
         l, = ax.plot(x_list[i], y_list[i], label=names[i], marker='o',
-                     markersize=R[i]/R_marker_norm, color=cm.viridis(K[i]/K_color_norm),linestyle = 'None')
+                     markersize=R[i]/R_marker_norm, color=cm.viridis_r(K[i]/K_color_norm),linestyle = 'None')
+        ax.annotate(txt, (x_list[i], y_list[i]))
         axes.append(l)
     ax.set_ylabel(param+' without CSM')
     ax.set_xlabel(param+' with CSM')
@@ -77,7 +78,8 @@ def plot_csm_scatter(param, param_range, ax):
     gll, = ax.plot([],[], markersize=R_examples[0]/R_marker_norm, marker='o', color=cm.viridis(K_examples[0]/K_color_norm),linestyle = 'None')
     gl, = ax.plot([],[], markersize=R_examples[1]/R_marker_norm, marker='o', color=cm.viridis(K_examples[1]/K_color_norm),linestyle = 'None')
     ga, = ax.plot([],[], markersize=R_examples[2]/R_marker_norm, marker='o', color=cm.viridis(K_examples[2]/K_color_norm),linestyle = 'None')
-    legend1 = ax.legend(axes, names, loc='upper left', fontsize=12)
+    # legend1 = ax.legend(axes, names, loc='upper left', fontsize=12)
+    # ax.add_artist(legend1)
     ax.legend((gll,gl,ga),
            ('K='+str(K_examples[0])+' R='+str(R_examples[0]), 'K='+str(K_examples[1])+' R='+str(R_examples[1]),
             'K='+str(K_examples[2])+' R='+str(R_examples[2])),
@@ -85,7 +87,6 @@ def plot_csm_scatter(param, param_range, ax):
            loc='lower left',
            ncol=1,
            fontsize=12)
-    ax.add_artist(legend1)
     # plt.savefig(os.path.join('figures', 'csm_effect_scatter_'+param+'_'+csm_param+'.png'))
     # plt.savefig(os.path.join('figures', 'csm_effect_scatter_' + param + '_' + csm_param + '.svg'))
 
@@ -117,10 +118,6 @@ for r in range(rows):
 plt.tight_layout()
 plt.savefig(os.path.join('figures', 'csm_effect_scatter.png'))
 plt.savefig(os.path.join('figures', 'csm_effect_scatter.pdf'))
-
-
-
-#TODO check on the new SNEC runs?
 
 #TODO compare one step vs two step with/wo prior carryover for a given SN, and show traces
 
