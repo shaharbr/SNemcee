@@ -22,7 +22,7 @@ resdf_CSMwithout = pd.DataFrame({'name':[],
                       'T':[],'T_lower':[],'T_upper':[],
                       'S':[],'S_lower':[],'S_upper':[]})
 
-SN_names = ['SN2004a', 'SN2005cs', 'SN2008bk', 'SN2012aw', 'SN2012ec', 'SN2017eaw', 'SN2018aoq', 'SN2020bij']
+SN_names = ['SN2004a', 'SN2005cs', 'SN2008bk', 'SN2012aw', 'SN2012ec', 'SN2017eaw', 'SN2018aoq']
 
 for SN_name in SN_names:
     print(SN_name + '_lum_csm-with_normalizedFalse_TreshLumFalse')
