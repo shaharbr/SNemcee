@@ -63,7 +63,7 @@ def plot_csm_scatter(param, param_range, ax):
                 xerr=[x_lower, x_upper], yerr=[y_lower, y_upper],
                 linestyle='None', color='black')
     axes = []
-    K_color_norm = 0.1
+    K_color_norm = 50
     K_examples = [10, 30, 60]
     R_marker_norm = 80
     R_examples = [100, 500, 1000]
@@ -72,15 +72,15 @@ def plot_csm_scatter(param, param_range, ax):
         x2 = max(x_list)
         xspacing = (x2 - x1) / 50
         l, = ax.plot(x_list[i], y_list[i], label=names[i], marker='o',
-                     markersize=(R[i]+50)/R_marker_norm, color=cm.viridis(K[i]/K_color_norm),linestyle = 'None')
+                     markersize=(R[i]+50)/R_marker_norm, color=cm.viridis((70-K[i])/K_color_norm),linestyle = 'None')
         ax.annotate(txt, (x_list[i]+xspacing, y_list[i]+xspacing))
         axes.append(l)
     ax.set_ylabel(param+' without CSM')
     ax.set_xlabel(param+' with CSM')
     ax.legend()
-    gll, = ax.plot([],[], markersize=(R_examples[0]+50)/R_marker_norm, marker='o', color=cm.viridis(K_examples[0]/K_color_norm),linestyle = 'None')
-    gl, = ax.plot([],[], markersize=(R_examples[1]+50)/R_marker_norm, marker='o', color=cm.viridis(K_examples[1]/K_color_norm),linestyle = 'None')
-    ga, = ax.plot([],[], markersize=(R_examples[2]+50)/R_marker_norm, marker='o', color=cm.viridis(K_examples[2]/K_color_norm),linestyle = 'None')
+    gll, = ax.plot([],[], markersize=(R_examples[0]+50)/R_marker_norm, marker='o', color=cm.viridis((70-K_examples[0])/K_color_norm),linestyle = 'None')
+    gl, = ax.plot([],[], markersize=(R_examples[1]+50)/R_marker_norm, marker='o', color=cm.viridis((70-K_examples[1])/K_color_norm),linestyle = 'None')
+    ga, = ax.plot([],[], markersize=(R_examples[2]+50)/R_marker_norm, marker='o', color=cm.viridis((70-K_examples[2])/K_color_norm),linestyle = 'None')
     # legend1 = ax.legend(axes, names, loc='upper left', fontsize=12)
     # ax.add_artist(legend1)
     ax.legend((gll,gl,ga),
