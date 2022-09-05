@@ -88,7 +88,7 @@ def plot_csm_scatter(param, param_range, ax):
             'K='+str(K_examples[1])+' R='+str(R_examples[1]),
             'K='+str(K_examples[2])+' R='+str(R_examples[2])),
            scatterpoints=1,
-           loc='lower left',
+           loc='lower right',
            ncol=1,
            fontsize=12)
     # plt.savefig(os.path.join('figures', 'csm_effect_scatter_'+param+'_'+csm_param+'.png'))
