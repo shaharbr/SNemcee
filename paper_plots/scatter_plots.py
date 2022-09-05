@@ -112,7 +112,7 @@ columns = 2
 for r in range(rows):
     for c in range(columns):
         i = (r+1) * (c+1) - 1
-        plot_csm_scatter(params[i], param_ranges[params[i]], axs[c,r])
+        plot_csm_scatter(params[i], param_ranges[params[i]], axs[r,c])
 
 plt.tight_layout()
 plt.savefig(os.path.join('figures', 'csm_effect_scatter.png'))
