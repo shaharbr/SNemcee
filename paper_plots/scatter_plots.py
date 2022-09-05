@@ -68,8 +68,8 @@ def plot_csm_scatter(param, param_range, ax):
     R_marker_norm = 80
     R_examples = [100, 500, 1000]
     for i, txt in enumerate(names):
-        x1 = min(x_list[i])
-        x2 = max(x_list[i])
+        x1 = min(x_list)
+        x2 = max(x_list)
         xspacing = (x2 - x1) / 50
         l, = ax.plot(x_list[i], y_list[i], label=names[i], marker='o',
                      markersize=(R[i]+50)/R_marker_norm, color=cm.viridis(K[i]/K_color_norm),linestyle = 'None')
