@@ -103,12 +103,16 @@ param_ranges = {'Mzams': Mzams_range, 'Ni': Ni_range, 'E': E_final_range,
                     'R': R_range, 'K': K_range, 'Mix': Mix_range, 'S': [], 'T': T_range}
 
 
-fig, axs = plt.subplots(6, 1, figsize=(10,25))
+fig, axs = plt.subplots(3, 2, figsize=(12,18))
 
 params = ['E', 'Mzams', 'Ni', 'Mix', 'S', 'T']
 
-for i in range(6):
-    plot_csm_scatter(params[i], param_ranges[params[i]], axs[i])
+rows = 3
+columns = 2
+for r in range(rows):
+    for c in range(columns):
+        i = (r+1) * (c+1) - 1
+        plot_csm_scatter(params[i], param_ranges[params[i]], axs[c,r])
 
 plt.tight_layout()
 plt.savefig(os.path.join('figures', 'csm_effect_scatter.png'))
