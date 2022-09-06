@@ -241,26 +241,16 @@ def log_likelihood(theta, data, ranges_dict, fitting_type, LumTthreshold, normal
         # print('ok SN')
         load_surrounding_models(theta[0:6], ranges_dict, fitting_type, LumTthreshold)
         args = [theta, data, ranges_dict, normalization]
-        # TODO make this run any combination of fitting type based on "if in", for, add
-        if fitting_type == 'lum':
+        log_likeli = 0
+        if 'lum' in fitting_type:
             args.append(LumTthreshold)
-            log_likeli = calc_lum_likelihood(*args)
-        elif fitting_type == 'mag':
+            log_likeli += calc_lum_likelihood(*args)
+        if 'mag' in fitting_type:
             log_likeli = calc_mag_likelihood(*args)
-        elif fitting_type == 'veloc':
+        if 'veloc' in fitting_type:
             log_likeli = calc_veloc_likelihood(*args)
-        elif fitting_type == 'lum-veloc':
-            log_likeli = calc_lum_likelihood(*args) + \
-                         calc_veloc_likelihood(*args)
-        elif fitting_type == 'mag-veloc':
-            log_likeli = calc_mag_likelihood(*args) + \
-                         calc_veloc_likelihood(*args)
-        elif fitting_type == 'combined':
-            log_likeli = calc_lum_likelihood(*args) + \
-                         calc_mag_likelihood(*args) + \
-                         calc_veloc_likelihood(*args)
         else:
-            print('fitting_type should be: lum, mag, veloc, lum-veloc, lum-veloc_normalized, mag-veloc, mag-veloc-normalized, combined or combined-normalized')
+            print('fitting_type should be: lum, mag, veloc, or a combination of those separated by a dash')
     else:
         # print('log lik')
         # print(theta)

@@ -27,6 +27,7 @@ def lum_wCSM_vs_woCSM(SN_name, fitting_type, normalization, LumThreshold, result
     axs[0].set_xlabel('Rest-frame days from discovery', fontsize=14)
     plt.tight_layout()
     fig.savefig(os.path.join(output_dir, SN_name+'_lum_csm_comparison.png'))
+    fig.savefig(os.path.join(output_dir, SN_name + '_lum_csm_comparison.pdf'))
     plot_snec_fits.overlay_corner_plot([lum_csmFalse_path, lum_csmTrue_path], output_dir,
                                        ['without CSM', 'with CSM'], SN_name + '_lum_csm_comparison')
     return fig
@@ -58,6 +59,7 @@ def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThres
     else:
         plot_single(fig_type, model_path, axs)
     fig.savefig(os.path.join(output_dir, model_name + '_'+str(fig_type)+'_plot.png'))
+    fig.savefig(os.path.join(output_dir, model_name + '_' + str(fig_type) + '_plot.pdf'))
 
 
 def corner_plot(SN_name, fitting_type, csm, normalization, LumThreshold, results_dir, output_dir):
@@ -93,6 +95,7 @@ def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, results
 
     plt.tight_layout()
     fig.savefig(os.path.join(output_dir, SN_name + '_lum_veloc_comparison.png'))
+    fig.savefig(os.path.join(output_dir, SN_name + '_lum_veloc_comparison.pdf'))
 
     plot_snec_fits.overlay_corner_plot([lum_path, lum_veloc_path, lum_veloc_normalized_path], output_dir,
                                        ['lum', 'lum+veloc, not normalized', 'lum+veloc, normalized'], SN_name + '_lum_veloc_comparison')
@@ -123,7 +126,10 @@ def lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, results_di
     axs[2, 1].set_xlabel('Rest-frame days from discovery', fontsize=14)
 
     plt.tight_layout()
-    fig.savefig(os.path.join(output_dir, SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum'+str(LumTthresh)+'.png'))
+    fig.savefig(
+        os.path.join(output_dir, SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum' + str(LumTthresh) + '.png'))
+    fig.savefig(
+        os.path.join(output_dir, SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum' + str(LumTthresh) + '.pdf'))
 
     plot_snec_fits.overlay_corner_plot([lum_veloc_path, mag_veloc_path], output_dir,
                                        ['lum+veloc', 'mag+veloc'],
@@ -160,6 +166,7 @@ def lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, results_d
     plt.tight_layout()
 
     fig.savefig(os.path.join(output_dir, SN_name + '_onestep_twostep_comparison.png'))
+    fig.savefig(os.path.join(output_dir, SN_name + '_onestep_twostep_comparison.pdf'))
 
     plot_snec_fits.overlay_corner_plot([onestep_path, twostep_priorNone_path, twostep_priorTrue_path],
                                        output_dir,

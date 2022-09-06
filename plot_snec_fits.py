@@ -8,6 +8,7 @@ import re
 import copy
 import colorful_corner_plot as color_corner
 
+# TODO add walker traces plots
 
 T_thresh = 10 ** 3.5
 extend_tail = False
@@ -270,9 +271,6 @@ def chain_plots(result_path, output_dir, first_stage_steps=None):
     flat_sampler_path = os.path.join(result_path, 'flat_sampler.csv')
     sampler_array = np.genfromtxt(flat_sampler_path, delimiter=',')
     sampler_chain = sampler_array.reshape((n_walkers, n_steps, len(params)))
-
-
-
     keys = list(ranges_dict.keys())
     for i in range(len(keys)):
         key = keys[i]
@@ -286,6 +284,7 @@ def chain_plots(result_path, output_dir, first_stage_steps=None):
             plt.axvspan(first_stage_steps, first_stage_steps+burn_in, alpha=0.1, color='grey')
         plt.tight_layout()
         plt.savefig(os.path.join(output_dir, key+'.png'))
+        plt.savefig(os.path.join(output_dir, key + '.pdf'))
 
 
 def get_args_from_file(result_path, ax, data_type):
@@ -324,5 +323,3 @@ def plot_result_fit(result_path, plot_types, ax):
         args = get_args_from_file(result_path, ax, 'mag')
         plot_mag_with_fit(*args)
     return ax
-
-# TODO then also need to fix the wrapper code to call stuff correctly, and also read from file names
