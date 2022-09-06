@@ -245,9 +245,9 @@ def log_likelihood(theta, data, ranges_dict, fitting_type, LumTthreshold, normal
         if 'lum' in fitting_type:
             args.append(LumTthreshold)
             log_likeli += calc_lum_likelihood(*args)
-        if 'mag' in fitting_type:
+        elif 'mag' in fitting_type:
             log_likeli = calc_mag_likelihood(*args)
-        if 'veloc' in fitting_type:
+        elif 'veloc' in fitting_type:
             log_likeli = calc_veloc_likelihood(*args)
         else:
             print('fitting_type should be: lum, mag, veloc, or a combination of those separated by a dash')
