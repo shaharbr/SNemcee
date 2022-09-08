@@ -26,7 +26,8 @@ SN_names = ['SN2004a', 'SN2005cs', 'SN2008bk', 'SN2012aw', 'SN2012ec', 'SN2017ea
 
 for SN_name in SN_names:
     print(SN_name + '_lum_csm-with_normalizedFalse_TreshLumFalse')
-    resfile_CSMwith = pd.read_csv(os.path.join('..', 'mcmc_results', '22_8_24', '700step',
+#TODO needs to be a lum-veoc normTrue fit
+    resfile_CSMwith = pd.read_csv(os.path.join('..', 'mcmc_results', '22_9_5', '1000step',
                                                   SN_name + '_lum_csm-with_normalizedFalse_TreshLumFalse',
                                                   'final_results.csv'))
     resfile_CSMwith['name'] = SN_name
