@@ -127,13 +127,13 @@ def lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, results_di
 
     plt.tight_layout()
     fig.savefig(
-        os.path.join(output_dir, SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum' + str(LumTthresh) + '.png'))
+        os.path.join(output_dir, SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum' + str(LumThreshold) + '.png'))
     fig.savefig(
-        os.path.join(output_dir, SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum' + str(LumTthresh) + '.pdf'))
+        os.path.join(output_dir, SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum' + str(LumThreshold) + '.pdf'))
 
     plot_snec_fits.overlay_corner_plot([lum_veloc_path, mag_veloc_path], output_dir,
                                        ['lum+veloc', 'mag+veloc'],
-                                       SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum'+str(LumTthresh))
+                                       SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum'+str(LumThreshold))
     return fig
 
 # TODO check the MCMC code for the twosteps
@@ -249,6 +249,7 @@ def main(argv):
         lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, res_dir, step_dir)
     elif type_fig == 'lum-veloc-normalized_comparison':
         lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, res_dir, step_dir)
+    # TODO make sure twostep all works
     elif type_fig == 'lum-veloc-twostep_comparison':
         lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, res_dir, step_dir)
 
