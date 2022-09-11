@@ -319,4 +319,4 @@ def plot_result_fit(result_path, plot_types, ax):
     if 'mag' in plot_types:
         args = get_args_from_file(result_path, ax, 'mag')
         ax, log_likeli =plot_mag_with_fit(*args)
-    return ax, log_likeli
+    return ax, np.array(log_likeli)
