@@ -364,6 +364,7 @@ def plot_result_fit(result_path, plot_types, ax, add_martinez=False):
     mcmc_snec.initialize_empty_models(ranges_dict)
     if 'lum' in plot_types:
         args = get_args_from_file(result_path, ax, 'lum')
+        print(args)
         args = args.append(add_martinez)
         ax, log_likeli = plot_lum_with_fit(*args)
     if 'veloc' in plot_types:

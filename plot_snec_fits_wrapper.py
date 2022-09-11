@@ -296,7 +296,7 @@ def main(argv):
     elif type_fig == 'martinez_comparison':
         lum_veloc_vs_martinez(SN_name, res_dir, output_dir)
     else:
-        print('figure type (-t) should be csm_comparison, lum-mag-veloc_comparison, lum-veloc-normalized_comparison, '
+        print('figure type (-f) should be csm_comparison, lum-mag-veloc_comparison, lum-veloc-normalized_comparison, '
               'lum-veloc-twostep_comparison, martinez_comparison, or any combination of lum, mag and veloc separated by'
               ' a dash (-)')
 
