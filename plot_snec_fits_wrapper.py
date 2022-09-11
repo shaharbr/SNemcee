@@ -4,9 +4,50 @@ import plot_snec_fits
 # import plot_snec_fits_martinez_and_data
 import sys, getopt
 import datetime
+import numpy as np
 
 
 time_now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+
+def plot_single(fig_type, model_path, ax):
+    ax, likeli = plot_snec_fits.plot_result_fit(model_path, fig_type, ax)
+    ax.set_xlabel('Rest-frame days from discovery', fontsize=14)
+    if fig_type == 'lum':
+        ax.set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
+    if fig_type == 'veloc':
+        ax.set_ylabel('Expansion velocity (km/s)', fontsize=14)
+    if fig_type == 'mag':
+        ax.set_ylabel('Absolute Magnitude', fontsize=14)
+    plt.tight_layout()
+    return ax, likeli
+
+
+def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThreshold, results_dir, output_dir):
+    fig_types = fig_type.split("-")
+    model_name = SN_name + '_' + fitting_type + '_csm-' + csm + '_normalized' + str(normalization)\
+                 + '_TreshLum' + str(LumThreshold)
+    model_path = os.path.join(results_dir, model_name)
+    num_subplots = len(fig_types)
+    fig, axs = plt.subplots(num_subplots, figsize=(10, num_subplots*7))
+    if num_subplots > 1:
+        for i, f in enumerate(fig_types):
+            axs[0], likeli = plot_single(f, model_path, axs[i])
+            np.savetxt(fig_type + '_' + model_name, likeli)
+    else:
+        axs, likeli = plot_single(fig_type, model_path, axs)
+        np.savetxt(fig_type + '_' + model_name, likeli)
+
+    fig.savefig(os.path.join(output_dir, model_name + '_'+str(fig_type)+'_plot.png'))
+    fig.savefig(os.path.join(output_dir, model_name + '_' + str(fig_type) + '_plot.pdf'))
+
+
+def corner_plot(SN_name, fitting_type, csm, normalization, LumThreshold, results_dir, output_dir):
+    model_name = SN_name + '_' + fitting_type + '_csm-' + csm + '_normalized' + str(normalization) \
+                 + '_TreshLum' + str(LumThreshold)
+    model_path = os.path.join(results_dir, model_name)
+    plot_snec_fits.overlay_corner_plot([model_path], output_dir,
+                                       [model_name], model_name)
 
 
 def lum_wCSM_vs_woCSM(SN_name, fitting_type, normalization, LumThreshold, results_dir, output_dir):
@@ -20,8 +61,11 @@ def lum_wCSM_vs_woCSM(SN_name, fitting_type, normalization, LumThreshold, result
                        + '_TreshLum' + str(LumThreshold)
     lum_csmFalse_path = os.path.join(results_dir, lum_csmFalse_name)
 
-    plot_snec_fits.plot_result_fit(lum_csmTrue_path, 'lum', axs[0])
-    plot_snec_fits.plot_result_fit(lum_csmFalse_path, 'lum', axs[1])
+    axs[0], likeli = plot_snec_fits.plot_result_fit(lum_csmTrue_path, 'lum', axs[0])
+    np.savetxt('lum_'+lum_csmTrue_name, likeli)
+    axs[1], likeli = plot_snec_fits.plot_result_fit(lum_csmFalse_path, 'lum', axs[1])
+    np.savetxt('lum_'+lum_csmFalse_name, likeli)
+
     axs[0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[0].set_xlabel('Rest-frame days from discovery', fontsize=14)
     axs[0].set_xlabel('Rest-frame days from discovery', fontsize=14)
@@ -31,43 +75,6 @@ def lum_wCSM_vs_woCSM(SN_name, fitting_type, normalization, LumThreshold, result
     plot_snec_fits.overlay_corner_plot([lum_csmFalse_path, lum_csmTrue_path], output_dir,
                                        ['without CSM', 'with CSM'], SN_name + '_lum_csm_comparison')
     return fig
-
-
-def plot_single(fig_type, model_path, ax):
-    plot_snec_fits.plot_result_fit(model_path, fig_type, ax)
-    ax.set_xlabel('Rest-frame days from discovery', fontsize=14)
-    if fig_type == 'lum':
-        ax.set_ylabel('Expansion velocity (km/s)', fontsize=14)
-    if fig_type == 'veloc':
-        ax.set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
-    if fig_type == 'mag':
-        ax.set_ylabel('Absolute Magnitude', fontsize=14)
-    plt.tight_layout()
-    return ax
-
-
-def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThreshold, results_dir, output_dir):
-    fig_types = fig_type.split("-")
-    model_name = SN_name + '_' + fitting_type + '_csm-' + csm + '_normalized' + str(normalization)\
-                 + '_TreshLum' + str(LumThreshold)
-    model_path = os.path.join(results_dir, model_name)
-    num_subplots = len(fig_types)
-    fig, axs = plt.subplots(num_subplots, figsize=(10, num_subplots*7))
-    if num_subplots > 1:
-        for i, f in enumerate(fig_types):
-            plot_single(f, model_path, axs[i])
-    else:
-        plot_single(fig_type, model_path, axs)
-    fig.savefig(os.path.join(output_dir, model_name + '_'+str(fig_type)+'_plot.png'))
-    fig.savefig(os.path.join(output_dir, model_name + '_' + str(fig_type) + '_plot.pdf'))
-
-
-def corner_plot(SN_name, fitting_type, csm, normalization, LumThreshold, results_dir, output_dir):
-    model_name = SN_name + '_' + fitting_type + '_csm-' + csm + '_normalized' + str(normalization) \
-                 + '_TreshLum' + str(LumThreshold)
-    model_path = os.path.join(results_dir, model_name)
-    plot_snec_fits.overlay_corner_plot([model_path], output_dir,
-                                       [model_name], model_name)
 
 
 def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, results_dir, output_dir):
@@ -80,12 +87,18 @@ def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, results
     lum_veloc_normalized_name = SN_name + '_lum-veloc_csm-' + csm + '_normalizedTrue_TreshLum' + str(LumThreshold)
     lum_veloc_normalized_path = os.path.join(results_dir, lum_veloc_normalized_name)
 
-    plot_snec_fits.plot_result_fit(lum_path, 'lum', axs[0, 0])
-    plot_snec_fits.plot_result_fit(lum_veloc_path, 'lum', axs[0, 1])
-    plot_snec_fits.plot_result_fit(lum_veloc_normalized_path, 'lum', axs[0, 2])
-    plot_snec_fits.plot_result_fit(lum_path, 'veloc', axs[1, 0])
-    plot_snec_fits.plot_result_fit(lum_veloc_path, 'veloc', axs[1, 1])
-    plot_snec_fits.plot_result_fit(lum_veloc_normalized_path, 'veloc', axs[1, 2])
+    axs[0, 0], likeli = plot_snec_fits.plot_result_fit(lum_path, 'lum', axs[0, 0])
+    np.savetxt('lum_' + lum_name, likeli)
+    axs[0, 1], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'lum', axs[0, 1])
+    np.savetxt('lum_' + lum_veloc_name, likeli)
+    axs[0, 2], likeli = plot_snec_fits.plot_result_fit(lum_veloc_normalized_path, 'lum', axs[0, 2])
+    np.savetxt('lum_' + lum_veloc_normalized_name, likeli)
+    axs[1, 0], likeli = plot_snec_fits.plot_result_fit(lum_path, 'veloc', axs[1, 0])
+    np.savetxt('veloc_' + lum_name, likeli)
+    axs[0, 1], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'veloc', axs[1, 1])
+    np.savetxt('veloc_' + lum_veloc_name, likeli)
+    axs[0, 2], likeli = plot_snec_fits.plot_result_fit(lum_veloc_normalized_path, 'veloc', axs[1, 2])
+    np.savetxt('veloc_' + lum_veloc_normalized_name, likeli)
 
     axs[0, 0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[1, 0].set_ylabel('Expansion velocity (km/s)', fontsize=14)
@@ -112,12 +125,18 @@ def lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, results_di
                      + '_TreshLum' + str(LumThreshold)
     mag_veloc_path = os.path.join(results_dir, mag_veloc_name)
 
-    plot_snec_fits.plot_result_fit(lum_veloc_path, 'lum', axs[0, 0])
-    plot_snec_fits.plot_result_fit(mag_veloc_path, 'lum', axs[0, 1])
-    plot_snec_fits.plot_result_fit(lum_veloc_path, 'mag', axs[1, 0])
-    plot_snec_fits.plot_result_fit(mag_veloc_path, 'mag', axs[1, 1])
-    plot_snec_fits.plot_result_fit(lum_veloc_path, 'veloc', axs[2, 0])
-    plot_snec_fits.plot_result_fit(mag_veloc_path, 'veloc', axs[2, 1])
+    axs[0, 0], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'lum', axs[0, 0])
+    np.savetxt('lum_' + lum_veloc_name, likeli)
+    axs[0, 1], likeli = plot_snec_fits.plot_result_fit(mag_veloc_path, 'lum', axs[0, 1])
+    np.savetxt('lum_' + mag_veloc_name, likeli)
+    axs[1, 0], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'mag', axs[1, 0])
+    np.savetxt('mag_' + lum_veloc_name, likeli)
+    axs[1, 1], likeli = plot_snec_fits.plot_result_fit(mag_veloc_path, 'mag', axs[1, 1])
+    np.savetxt('mag_' + mag_veloc_name, likeli)
+    axs[2, 0], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'veloc', axs[2, 0])
+    np.savetxt('veloc_' + lum_veloc_name, likeli)
+    axs[2, 1], likeli = plot_snec_fits.plot_result_fit(mag_veloc_path, 'veloc', axs[2, 1])
+    np.savetxt('veloc_' + mag_veloc_name, likeli)
 
     axs[0, 0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[1, 0].set_ylabel('Absolute Magnitude', fontsize=14)
@@ -150,12 +169,19 @@ def lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, results_d
                              + str(normalization) + '_TreshLum' + str(LumThreshold)
     twostep_priorTrue_path = os.path.join(results_dir, twostep_priorTrue_name)
 
-    plot_snec_fits.plot_result_fit(onestep_path, 'lum', axs[0, 0])
-    plot_snec_fits.plot_result_fit(twostep_priorNone_path, 'lum', axs[0, 1])
-    plot_snec_fits.plot_result_fit(twostep_priorTrue_path, 'lum', axs[0, 2])
-    plot_snec_fits.plot_result_fit(onestep_path, 'veloc', axs[1, 0])
-    plot_snec_fits.plot_result_fit(twostep_priorNone_path, 'veloc', axs[1, 1])
-    plot_snec_fits.plot_result_fit(twostep_priorTrue_path, 'veloc', axs[1, 2])
+    axs[0, 0], likeli = plot_snec_fits.plot_result_fit(onestep_path, 'lum', axs[0, 0])
+    np.savetxt('lum_' + onestep_name, likeli)
+    axs[0, 1], likeli = plot_snec_fits.plot_result_fit(twostep_priorNone_path, 'lum', axs[0, 1])
+    np.savetxt('lum_' + twostep_priorNone_name, likeli)
+    axs[0, 2], likeli = plot_snec_fits.plot_result_fit(twostep_priorTrue_path, 'lum', axs[0, 2])
+    np.savetxt('lum_' + twostep_priorTrue_name, likeli)
+    axs[1, 0], likeli = plot_snec_fits.plot_result_fit(onestep_path, 'veloc', axs[1, 0])
+    np.savetxt('veloc_' + onestep_name, likeli)
+    axs[1, 1], likeli = plot_snec_fits.plot_result_fit(twostep_priorNone_path, 'veloc', axs[1, 1])
+    np.savetxt('veloc_' + twostep_priorNone_name, likeli)
+    axs[1, 2], likeli = plot_snec_fits.plot_result_fit(twostep_priorTrue_path, 'veloc', axs[1, 2])
+    np.savetxt('veloc_' + twostep_priorTrue_name, likeli)
+
 
     axs[0, 0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[1, 0].set_ylabel('Expansion velocity (km/s)', fontsize=14)

@@ -120,11 +120,10 @@ def plot_lum_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
     SNemcee_fit_lengend = Line2D([0], [0], label=results_text, color='purple')
     handles.extend([SNemcee_fit_lengend])
     ax.legend(handles=handles, fontsize=10)
-    ax.set_title('log likelihood = ' + str(round(log_likeli,3)), fontsize=18)
     ax.set_xlim(-2, 200)
     ax.set_ylim(top=43.5)
     ax.tick_params(axis='both', which='major', labelsize=10)
-    return ax
+    return ax, log_likeli
 
 
 def plot_veloc_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold):
@@ -151,10 +150,9 @@ def plot_veloc_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, norma
     log_likeli = np.mean(log_likeli)
     # real observations for the SN
     ax.errorbar(data_x, data_y, yerr=data_dy, marker='o', linestyle='None', color='k')
-    ax.set_title('log likelihood = ' + str(round(log_likeli,3)), fontsize=18)
     ax.set_xlim(-2, 200)
     ax.tick_params(axis='both', which='major', labelsize=10)
-    return ax
+    return ax, log_likeli
 
 
 def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold):
@@ -197,12 +195,11 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
         ax.errorbar(data_x, data_y, yerr=data_dy, marker='o', linestyle='None',
                     label=filt, color=colors[filt])
     ax.legend()
-    ax.set_title('log likelihood = ' + str(round(log_likeli,3)), fontsize=18)
     ax.set_xlim(-2, 200)
     ax.invert_yaxis()
     ax.set_ylim(-14, -19)
     ax.tick_params(axis='both', which='major', labelsize=10)
-    return ax
+    return ax, log_likeli
 
 
 def range_bounds(ranges_list):
@@ -315,11 +312,11 @@ def plot_result_fit(result_path, plot_types, ax):
     mcmc_snec.initialize_empty_models(ranges_dict)
     if 'lum' in plot_types:
         args = get_args_from_file(result_path, ax, 'lum')
-        plot_lum_with_fit(*args)
+        ax, log_likeli = plot_lum_with_fit(*args)
     if 'veloc' in plot_types:
         args = get_args_from_file(result_path, ax, 'veloc')
-        plot_veloc_with_fit(*args)
+        ax, log_likeli =plot_veloc_with_fit(*args)
     if 'mag' in plot_types:
         args = get_args_from_file(result_path, ax, 'mag')
-        plot_mag_with_fit(*args)
-    return ax
+        ax, log_likeli =plot_mag_with_fit(*args)
+    return ax, log_likeli
