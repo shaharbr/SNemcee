@@ -15,7 +15,7 @@ time_now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 def add_likelihood_to_file(model_name, fit_type, likeli, output_dir):
     filepath = os.path.join(output_dir, 'log_likelihoods.txt')
     if not os.path.exists(filepath):
-        f = pd.DataFrame({'model_name':[], 'fit_type':[], 'log_likelihood':[]},index=[0])
+        f = pd.DataFrame({'model_name':[], 'fit_type':[], 'log_likelihood':[]})
         f.to_csv(filepath)
         print(f)
     f = pd.read_csv(filepath)
