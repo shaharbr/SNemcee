@@ -20,6 +20,7 @@ def plot_single(fig_type, model_path, ax):
     if fig_type == 'mag':
         ax.set_ylabel('Absolute Magnitude', fontsize=14)
     plt.tight_layout()
+    print('lik', likeli)
     return ax, likeli
 
 
