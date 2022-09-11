@@ -163,6 +163,7 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
     y_fit_plotting = {}
     y_fit_on_data_times = {}
     log_likeli = []
+    print('wakers', n_walkers)
     for i in range(n_walkers):
         [Mzams, Ni, E, R, K, Mix, S, T] = sampler_df.iloc[i]
         requested = [Mzams, Ni, E, R, K, Mix, S, T]
@@ -171,7 +172,8 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
             # always truncate by temp thresh for mag
             max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], ranges_dict, data_x_moved)
             data = data.loc[data_x_moved <= max_x]
-            x_plotting = nplog_likeli.linspace(-T, max_x, int(1 + max_x * 10))
+            x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
+            print(filters)
             for filt in filters:
                 data_filt = data.loc[data['filter'] == filt]
                 data_x_filt_moved = data_filt['t_from_discovery'] - T
@@ -179,6 +181,7 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
                 data_dy_filt = data_filt['dmag']
                 y_fit_plotting[filt] = mcmc_snec.interp_yfit(requested, ranges_dict, 'mag', x_plotting, filt)
                 y_fit_on_data_times[filt] = mcmc_snec.interp_yfit(requested, ranges_dict, 'mag', data_x_filt_moved, filt)
+                print(y_fit_plotting)
                 if not isinstance(y_fit_plotting[filt], str):
                     # multiply whole graph by scaling factor
                     y_fit_plotting[filt] = y_fit_plotting[filt] -2.5*np.log10(S)
@@ -186,6 +189,8 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
                     ax.plot(x_plotting, y_fit_plotting[filt], color=colors[filt], alpha=0.1)
                     log_likeli.append(mcmc_snec.calc_likelihood(data_x_filt_moved, data_y_filt, data_dy_filt,
                                                                 y_fit_on_data_times[filt], normalization))
+        else:
+            print('not in range')
     log_likeli = np.mean(log_likeli)
     for filt in filters:
         data_filt = data_og.loc[data_og['filter'] == filt]
