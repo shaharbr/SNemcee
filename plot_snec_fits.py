@@ -167,6 +167,7 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
     for i in range(n_walkers):
         [Mzams, Ni, E, R, K, Mix, S, T] = sampler_df.iloc[i]
         requested = [Mzams, Ni, E, R, K, Mix, S, T]
+        print(requested)
         if mcmc_snec.theta_in_range(requested, ranges_dict):
             data_x_moved = data_x - T
             # always truncate by temp thresh for mag
@@ -190,7 +191,6 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
                     log_likeli.append(mcmc_snec.calc_likelihood(data_x_filt_moved, data_y_filt, data_dy_filt,
                                                                 y_fit_on_data_times[filt], normalization))
         else:
-            print(requested, ranges_dict)
             print('not in range')
     log_likeli = np.mean(log_likeli)
     for filt in filters:
