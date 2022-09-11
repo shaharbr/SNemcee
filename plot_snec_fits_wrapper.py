@@ -204,10 +204,10 @@ def lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, results_d
 def main(argv):
     SN_name = ''
     n_steps = 500
-    type_fig = False
+    type_fig = 'lum'
     output_dir = 'output_' + time_now
-    fitting_type = False
-    csm = False
+    fitting_type = 'lum'
+    csm = 'without'
     normalization = False
     LumThreshold = False
 
