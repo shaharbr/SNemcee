@@ -1,29 +1,17 @@
 import os
 from matplotlib import pyplot as plt
-import plot_snec_fits
-# import plot_snec_fits_martinez_and_data
+import plot_snec_fits as pltsn
 import sys, getopt
 import datetime
-import numpy as np
-import pandas as pd
 
 
 time_now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 
 
-def add_likelihood_to_file(model_name, fit_type, likeli, output_dir):
-    filepath = os.path.join(output_dir, 'log_likelihoods.txt')
-    if not os.path.exists(filepath):
-        f = pd.DataFrame({'model_name':[], 'fit_type':[], 'log_likelihood':[]})
-        f.to_csv(filepath)
-    f = pd.read_csv(filepath, index_col=0)
-    f = f.append(pd.DataFrame({'model_name':model_name, 'fit_type':fit_type, 'log_likelihood':likeli},index=[0]),ignore_index=True)
-    f.to_csv(filepath)
-
 
 def plot_single(fig_type, model_path, ax):
-    ax, likeli = plot_snec_fits.plot_result_fit(model_path, fig_type, ax)
+    ax, likeli = pltsn.plot_result_fit(model_path, fig_type, ax)
     ax.set_xlabel('Rest-frame days from discovery', fontsize=14)
     if fig_type == 'lum':
         ax.set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
@@ -45,10 +33,10 @@ def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThres
     if num_subplots > 1:
         for i, f in enumerate(fig_types):
             axs[0], likeli = plot_single(f, model_path, axs[i])
-            add_likelihood_to_file(model_name, fig_type, likeli, output_dir)
+            pltsn.add_likelihood_to_file(model_name, fig_type, likeli, output_dir)
     else:
         axs, likeli = plot_single(fig_type, model_path, axs)
-        add_likelihood_to_file(model_name, fig_type, likeli, output_dir)
+        pltsn.add_likelihood_to_file(model_name, fig_type, likeli, output_dir)
     fig.savefig(os.path.join(output_dir, model_name + '_'+str(fig_type)+'_plot.png'))
     fig.savefig(os.path.join(output_dir, model_name + '_' + str(fig_type) + '_plot.pdf'))
 
@@ -57,7 +45,7 @@ def corner_plot(SN_name, fitting_type, csm, normalization, LumThreshold, results
     model_name = SN_name + '_' + fitting_type + '_csm-' + csm + '_normalized' + str(normalization) \
                  + '_TreshLum' + str(LumThreshold)
     model_path = os.path.join(results_dir, model_name)
-    plot_snec_fits.overlay_corner_plot([model_path], output_dir,
+    pltsn.overlay_corner_plot([model_path], output_dir,
                                        [model_name], model_name)
 
 
@@ -72,10 +60,10 @@ def lum_wCSM_vs_woCSM(SN_name, fitting_type, normalization, LumThreshold, result
                        + '_TreshLum' + str(LumThreshold)
     lum_csmFalse_path = os.path.join(results_dir, lum_csmFalse_name)
 
-    axs[0], likeli = plot_snec_fits.plot_result_fit(lum_csmTrue_path, 'lum', axs[0])
-    add_likelihood_to_file(lum_csmTrue_name, 'lum', likeli, output_dir)
-    axs[1], likeli = plot_snec_fits.plot_result_fit(lum_csmFalse_path, 'lum', axs[1])
-    add_likelihood_to_file(lum_csmFalse_name, 'lum', likeli, output_dir)
+    axs[0], likeli = pltsn.plot_result_fit(lum_csmTrue_path, 'lum', axs[0])
+    pltsn.add_likelihood_to_file(lum_csmTrue_name, 'lum', likeli, output_dir)
+    axs[1], likeli = pltsn.plot_result_fit(lum_csmFalse_path, 'lum', axs[1])
+    pltsn.add_likelihood_to_file(lum_csmFalse_name, 'lum', likeli, output_dir)
 
     axs[0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[0].set_xlabel('Rest-frame days from discovery', fontsize=14)
@@ -83,7 +71,7 @@ def lum_wCSM_vs_woCSM(SN_name, fitting_type, normalization, LumThreshold, result
     plt.tight_layout()
     fig.savefig(os.path.join(output_dir, SN_name+'_lum_csm_comparison.png'))
     fig.savefig(os.path.join(output_dir, SN_name + '_lum_csm_comparison.pdf'))
-    plot_snec_fits.overlay_corner_plot([lum_csmFalse_path, lum_csmTrue_path], output_dir,
+    pltsn.overlay_corner_plot([lum_csmFalse_path, lum_csmTrue_path], output_dir,
                                        ['without CSM', 'with CSM'], SN_name + '_lum_csm_comparison')
     return fig
 
@@ -98,18 +86,18 @@ def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, results
     lum_veloc_normalized_name = SN_name + '_lum-veloc_csm-' + csm + '_normalizedTrue_TreshLum' + str(LumThreshold)
     lum_veloc_normalized_path = os.path.join(results_dir, lum_veloc_normalized_name)
 
-    axs[0, 0], likeli = plot_snec_fits.plot_result_fit(lum_path, 'lum', axs[0, 0])
-    add_likelihood_to_file(lum_name, 'lum', likeli, output_dir)
-    axs[0, 1], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'lum', axs[0, 1])
-    add_likelihood_to_file(lum_veloc_name, 'lum', likeli, output_dir)
-    axs[0, 2], likeli = plot_snec_fits.plot_result_fit(lum_veloc_normalized_path, 'lum', axs[0, 2])
-    add_likelihood_to_file(lum_veloc_normalized_name, 'lum', likeli, output_dir)
-    axs[1, 0], likeli = plot_snec_fits.plot_result_fit(lum_path, 'veloc', axs[1, 0])
-    add_likelihood_to_file(lum_name, 'veloc', likeli, output_dir)
-    axs[0, 1], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'veloc', axs[1, 1])
-    add_likelihood_to_file(lum_veloc_name, 'veloc', likeli, output_dir)
-    axs[0, 2], likeli = plot_snec_fits.plot_result_fit(lum_veloc_normalized_path, 'veloc', axs[1, 2])
-    add_likelihood_to_file(lum_veloc_normalized_name, 'veloc', likeli, output_dir)
+    axs[0, 0], likeli = pltsn.plot_result_fit(lum_path, 'lum', axs[0, 0])
+    pltsn.add_likelihood_to_file(lum_name, 'lum', likeli, output_dir)
+    axs[0, 1], likeli = pltsn.plot_result_fit(lum_veloc_path, 'lum', axs[0, 1])
+    pltsn.add_likelihood_to_file(lum_veloc_name, 'lum', likeli, output_dir)
+    axs[0, 2], likeli = pltsn.plot_result_fit(lum_veloc_normalized_path, 'lum', axs[0, 2])
+    pltsn.add_likelihood_to_file(lum_veloc_normalized_name, 'lum', likeli, output_dir)
+    axs[1, 0], likeli = pltsn.plot_result_fit(lum_path, 'veloc', axs[1, 0])
+    pltsn.add_likelihood_to_file(lum_name, 'veloc', likeli, output_dir)
+    axs[0, 1], likeli = pltsn.plot_result_fit(lum_veloc_path, 'veloc', axs[1, 1])
+    pltsn.add_likelihood_to_file(lum_veloc_name, 'veloc', likeli, output_dir)
+    axs[0, 2], likeli = pltsn.plot_result_fit(lum_veloc_normalized_path, 'veloc', axs[1, 2])
+    pltsn.add_likelihood_to_file(lum_veloc_normalized_name, 'veloc', likeli, output_dir)
 
     axs[0, 0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[1, 0].set_ylabel('Expansion velocity (km/s)', fontsize=14)
@@ -121,7 +109,7 @@ def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, results
     fig.savefig(os.path.join(output_dir, SN_name + '_lum_veloc_comparison.png'))
     fig.savefig(os.path.join(output_dir, SN_name + '_lum_veloc_comparison.pdf'))
 
-    plot_snec_fits.overlay_corner_plot([lum_path, lum_veloc_path, lum_veloc_normalized_path], output_dir,
+    pltsn.overlay_corner_plot([lum_path, lum_veloc_path, lum_veloc_normalized_path], output_dir,
                                        ['lum', 'lum+veloc, not normalized', 'lum+veloc, normalized'], SN_name + '_lum_veloc_comparison')
     return fig
 
@@ -138,18 +126,18 @@ def lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, results_di
                      + '_TreshLum' + str(LumThreshold)
     mag_veloc_path = os.path.join(results_dir, mag_veloc_name)
 
-    axs[0, 0], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'lum', axs[0, 0])
-    add_likelihood_to_file(lum_veloc_name, 'lum', likeli, output_dir)
-    axs[0, 1], likeli = plot_snec_fits.plot_result_fit(mag_veloc_path, 'lum', axs[0, 1])
-    add_likelihood_to_file(mag_veloc_name, 'lum', likeli, output_dir)
-    axs[1, 0], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'mag', axs[1, 0])
-    add_likelihood_to_file(lum_veloc_name, 'mag', likeli, output_dir)
-    axs[1, 1], likeli = plot_snec_fits.plot_result_fit(mag_veloc_path, 'mag', axs[1, 1])
-    add_likelihood_to_file(mag_veloc_name, 'mag', likeli, output_dir)
-    axs[2, 0], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'veloc', axs[2, 0])
-    add_likelihood_to_file(lum_veloc_name, 'veloc', likeli, output_dir)
-    axs[2, 1], likeli = plot_snec_fits.plot_result_fit(mag_veloc_path, 'veloc', axs[2, 1])
-    add_likelihood_to_file(mag_veloc_name, 'veloc', likeli, output_dir)
+    axs[0, 0], likeli = pltsn.plot_result_fit(lum_veloc_path, 'lum', axs[0, 0])
+    pltsn.add_likelihood_to_file(lum_veloc_name, 'lum', likeli, output_dir)
+    axs[0, 1], likeli = pltsn.plot_result_fit(mag_veloc_path, 'lum', axs[0, 1])
+    pltsn.add_likelihood_to_file(mag_veloc_name, 'lum', likeli, output_dir)
+    axs[1, 0], likeli = pltsn.plot_result_fit(lum_veloc_path, 'mag', axs[1, 0])
+    pltsn.add_likelihood_to_file(lum_veloc_name, 'mag', likeli, output_dir)
+    axs[1, 1], likeli = pltsn.plot_result_fit(mag_veloc_path, 'mag', axs[1, 1])
+    pltsn.add_likelihood_to_file(mag_veloc_name, 'mag', likeli, output_dir)
+    axs[2, 0], likeli = pltsn.plot_result_fit(lum_veloc_path, 'veloc', axs[2, 0])
+    pltsn.add_likelihood_to_file(lum_veloc_name, 'veloc', likeli, output_dir)
+    axs[2, 1], likeli = pltsn.plot_result_fit(mag_veloc_path, 'veloc', axs[2, 1])
+    pltsn.add_likelihood_to_file(mag_veloc_name, 'veloc', likeli, output_dir)
 
     axs[0, 0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[1, 0].set_ylabel('Absolute Magnitude', fontsize=14)
@@ -163,7 +151,7 @@ def lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, results_di
     fig.savefig(
         os.path.join(output_dir, SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum' + str(LumThreshold) + '.pdf'))
 
-    plot_snec_fits.overlay_corner_plot([lum_veloc_path, mag_veloc_path], output_dir,
+    pltsn.overlay_corner_plot([lum_veloc_path, mag_veloc_path], output_dir,
                                        ['lum+veloc', 'mag+veloc'],
                                        SN_name + '_lum-veloc_mag-veloc_comparison_TreshLum'+str(LumThreshold))
     return fig
@@ -183,18 +171,18 @@ def lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, results_d
                              + str(normalization) + '_TreshLum' + str(LumThreshold)
     twostep_priorTrue_path = os.path.join(results_dir, twostep_priorTrue_name)
 
-    axs[0, 0], likeli = plot_snec_fits.plot_result_fit(onestep_path, 'lum', axs[0, 0])
-    add_likelihood_to_file(onestep_name, 'lum', likeli, output_dir)
-    axs[0, 1], likeli = plot_snec_fits.plot_result_fit(twostep_priorNone_path, 'lum', axs[0, 1])
-    add_likelihood_to_file(twostep_priorNone_name, 'lum', likeli, output_dir)
-    axs[0, 2], likeli = plot_snec_fits.plot_result_fit(twostep_priorTrue_path, 'lum', axs[0, 2])
-    add_likelihood_to_file(twostep_priorTrue_name, 'lum', likeli, output_dir)
-    axs[1, 0], likeli = plot_snec_fits.plot_result_fit(onestep_path, 'veloc', axs[1, 0])
-    add_likelihood_to_file(onestep_name, 'veloc', likeli, output_dir)
-    axs[1, 1], likeli = plot_snec_fits.plot_result_fit(twostep_priorNone_path, 'veloc', axs[1, 1])
-    add_likelihood_to_file(twostep_priorNone_name, 'veloc', likeli, output_dir)
-    axs[1, 2], likeli = plot_snec_fits.plot_result_fit(twostep_priorTrue_path, 'veloc', axs[1, 2])
-    add_likelihood_to_file(twostep_priorTrue_name, 'veloc', likeli, output_dir)
+    axs[0, 0], likeli = pltsn.plot_result_fit(onestep_path, 'lum', axs[0, 0])
+    pltsn.add_likelihood_to_file(onestep_name, 'lum', likeli, output_dir)
+    axs[0, 1], likeli = pltsn.plot_result_fit(twostep_priorNone_path, 'lum', axs[0, 1])
+    pltsn.add_likelihood_to_file(twostep_priorNone_name, 'lum', likeli, output_dir)
+    axs[0, 2], likeli = pltsn.plot_result_fit(twostep_priorTrue_path, 'lum', axs[0, 2])
+    pltsn.add_likelihood_to_file(twostep_priorTrue_name, 'lum', likeli, output_dir)
+    axs[1, 0], likeli = pltsn.plot_result_fit(onestep_path, 'veloc', axs[1, 0])
+    pltsn.add_likelihood_to_file(onestep_name, 'veloc', likeli, output_dir)
+    axs[1, 1], likeli = pltsn.plot_result_fit(twostep_priorNone_path, 'veloc', axs[1, 1])
+    pltsn.add_likelihood_to_file(twostep_priorNone_name, 'veloc', likeli, output_dir)
+    axs[1, 2], likeli = pltsn.plot_result_fit(twostep_priorTrue_path, 'veloc', axs[1, 2])
+    pltsn.add_likelihood_to_file(twostep_priorTrue_name, 'veloc', likeli, output_dir)
 
     axs[0, 0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[1, 0].set_ylabel('Expansion velocity (km/s)', fontsize=14)
@@ -207,11 +195,42 @@ def lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, results_d
     fig.savefig(os.path.join(output_dir, SN_name + '_onestep_twostep_comparison.png'))
     fig.savefig(os.path.join(output_dir, SN_name + '_onestep_twostep_comparison.pdf'))
 
-    plot_snec_fits.overlay_corner_plot([onestep_path, twostep_priorNone_path, twostep_priorTrue_path],
+    pltsn.overlay_corner_plot([onestep_path, twostep_priorNone_path, twostep_priorTrue_path],
                                        output_dir,
                                        ['one step', 'two step, no priors carryover', 'two step, with priors carryover'],
                                        SN_name + '_onestep_twostep_comparison')
     return fig
+
+
+def lum_veloc_vs_martinez(SN_name, results_dir, output_dir):
+    fig, axs = plt.subplots(2, 3, sharey='row', figsize=(20, 12))
+
+    lum_veloc_name = SN_name + '_lum-veloc_csm-with_normalizedFalse_TreshLumFalse'
+    lum_veloc_path = os.path.join(results_dir, lum_veloc_name)
+
+
+
+    lum_veloc_normalized_path = os.path.join(results_dir, lum_veloc_normalized_name)
+
+    pltsn.plot_result_fit(lum_path, 'lum', axs[0, 0])
+    pltsn.plot_result_fit(lum_veloc_path, 'lum', axs[0, 1])
+    pltsn.plot_result_fit(lum_veloc_normalized_path, 'lum', axs[0, 2])
+    pltsn.plot_result_fit(lum_path, 'veloc', axs[1, 0])
+    pltsn.plot_result_fit(lum_veloc_path, 'veloc', axs[1, 1])
+    pltsn.plot_result_fit(lum_veloc_normalized_path, 'veloc', axs[1, 2])
+
+    axs[0, 0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
+    axs[1, 0].set_ylabel('Expansion velocity (km/s)', fontsize=14)
+    axs[1, 0].set_xlabel('Rest-frame days from discovery', fontsize=14)
+    axs[1, 1].set_xlabel('Rest-frame days from discovery', fontsize=14)
+    axs[1, 2].set_xlabel('Rest-frame days from discovery', fontsize=14)
+
+    plt.tight_layout()
+    fig.savefig(os.path.join(output_dir, SN_name + '_lum_veloc_comparison.png'))
+    return fig
+
+
+
 
 
 def main(argv):
@@ -288,7 +307,6 @@ def main(argv):
         lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, res_dir, step_dir)
     elif type_fig == 'lum-veloc-normalized_comparison':
         lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, res_dir, step_dir)
-    # TODO make sure twostep all works
     elif type_fig == 'lum-veloc-twostep_comparison':
         lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, res_dir, step_dir)
 
@@ -297,36 +315,8 @@ if __name__ == "__main__":
     main(sys.argv)
 
 
-# def lum_veloc_vs_martinez(SN_name, results_dir, output_dir):
-#     fig, axs = plt.subplots(2, 3, sharey='row', figsize=(20, 12))
-#
-#     lum_veloc_name = 'lum-veloc_csmTrue_' + SN_name
-#     lum_veloc_path = os.path.join(results_dir, lum_veloc_name)
-#     lum_veloc_normalized_name = 'lum-veloc-normalized_csmTrue_' + SN_name
-#     lum_veloc_normalized_path = os.path.join(results_dir, lum_veloc_normalized_name)
-#
-#     plot_snec_fits.plot_result_fit(lum_path, 'lum', axs[0, 0])
-#     plot_snec_fits.plot_result_fit(lum_veloc_path, 'lum', axs[0, 1])
-#     plot_snec_fits.plot_result_fit(lum_veloc_normalized_path, 'lum', axs[0, 2])
-#     plot_snec_fits.plot_result_fit(lum_path, 'veloc', axs[1, 0])
-#     plot_snec_fits.plot_result_fit(lum_veloc_path, 'veloc', axs[1, 1])
-#     plot_snec_fits.plot_result_fit(lum_veloc_normalized_path, 'veloc', axs[1, 2])
-#
-#     axs[0, 0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
-#     axs[1, 0].set_ylabel('Expansion velocity (km/s)', fontsize=14)
-#     axs[1, 0].set_xlabel('Rest-frame days from discovery', fontsize=14)
-#     axs[1, 1].set_xlabel('Rest-frame days from discovery', fontsize=14)
-#     axs[1, 2].set_xlabel('Rest-frame days from discovery', fontsize=14)
-#
-#     plt.tight_layout()
-#
-#     fig.savefig(os.path.join(output_dir, SN_name + '_lum_veloc_comparison.png'))
-#
-#     return fig
-
-
-
 '''
+
 for martinez in martinez_truth:
     for result_path in res_paths:
         res_name = result_path.split(sep='/')[-1]
