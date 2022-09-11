@@ -18,7 +18,7 @@ def add_likelihood_to_file(model_name, fit_type, likeli, output_dir):
         f = pd.DataFrame({'model_name':[], 'fit_type':[], 'log_likelihood':[]})
         f.to_csv(filepath)
         print(f)
-    f = pd.read_csv(filepath)
+    f = pd.read_csv(filepath, index_col=0)
     print(pd.DataFrame({'model_name':model_name, 'fit_type':fit_type, 'log_likelihood':likeli},index=[0]))
     print(f)
     f = f.append(pd.DataFrame({'model_name':model_name, 'fit_type':fit_type, 'log_likelihood':likeli},index=[0]),ignore_index=True)
