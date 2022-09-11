@@ -113,8 +113,8 @@ fig, axs = plt.subplots(3, 2, figsize=(12,18))
 
 params = ['E', 'Mzams', 'Ni', 'Mix', 'S', 'T']
 
-rows = 3
-columns = 2
+rows = 2
+columns = 3
 for r in range(rows):
     for c in range(columns):
         i = (r+1) * (c+1) - 1
