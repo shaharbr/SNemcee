@@ -17,12 +17,8 @@ def add_likelihood_to_file(model_name, fit_type, likeli, output_dir):
     if not os.path.exists(filepath):
         f = pd.DataFrame({'model_name':[], 'fit_type':[], 'log_likelihood':[]})
         f.to_csv(filepath)
-        print(f)
     f = pd.read_csv(filepath, index_col=0)
-    print(pd.DataFrame({'model_name':model_name, 'fit_type':fit_type, 'log_likelihood':likeli},index=[0]))
-    print(f)
     f = f.append(pd.DataFrame({'model_name':model_name, 'fit_type':fit_type, 'log_likelihood':likeli},index=[0]),ignore_index=True)
-    print(f)
     f.to_csv(filepath)
 
 
@@ -36,7 +32,6 @@ def plot_single(fig_type, model_path, ax):
     if fig_type == 'mag':
         ax.set_ylabel('Absolute Magnitude', fontsize=14)
     plt.tight_layout()
-    print('lik', likeli)
     return ax, likeli
 
 
@@ -174,6 +169,7 @@ def lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, results_di
     return fig
 
 # TODO check the MCMC code for the twosteps
+
 
 def lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, results_dir, output_dir):
     fig, axs = plt.subplots(2, 3, sharey='row', figsize=(20, 12))

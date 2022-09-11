@@ -171,7 +171,7 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
             # always truncate by temp thresh for mag
             max_x, temp_fit = mcmc_snec.temp_thresh_cutoff(requested[0:6], ranges_dict, data_x_moved)
             data = data.loc[data_x_moved <= max_x]
-            x_plotting = np.linspace(-T, max_x, int(1 + max_x * 10))
+            x_plotting = nplog_likeli.linspace(-T, max_x, int(1 + max_x * 10))
             for filt in filters:
                 data_filt = data.loc[data['filter'] == filt]
                 data_x_filt_moved = data_filt['t_from_discovery'] - T
@@ -194,6 +194,9 @@ def plot_mag_with_fit(data_dict, sampler_df, ranges_dict, n_walkers, ax, normali
         data_dy = data_filt['dmag']
         ax.errorbar(data_x, data_y, yerr=data_dy, marker='o', linestyle='None',
                     label=filt, color=colors[filt])
+    print(y_fit_plotting)
+    print(sampler_df)
+    print(log_likeli)
     ax.legend()
     ax.set_xlim(-2, 200)
     ax.invert_yaxis()
