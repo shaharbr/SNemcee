@@ -207,7 +207,7 @@ def plot_veloc_with_fit(SN_name, data_dict, sampler_df, ranges_dict, n_walkers, 
     return ax, log_likeli
 
 
-def plot_mag_with_fit(SN_name, data_dict, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold):
+def plot_mag_with_fit(SN_name, data_dict, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold, add_martinez):
     data = data_dict['mag']
     filters = list(data['filter'].unique())
     data_x = data['t_from_discovery']
@@ -336,7 +336,7 @@ def chain_plots(result_path, output_dir, first_stage_steps=None):
         plt.savefig(os.path.join(output_dir, key + '.pdf'))
 
 
-def get_args_from_file(result_path, ax, data_type):
+def get_args_from_file(result_path, ax, data_type, add_martinez=False):
     run_params_path = os.path.join(result_path, 'run_parameters.csv')
     run_params = pd.read_csv(run_params_path, index_col=0).T
     ranges_dict = import_ranges(run_params.columns.values, run_params)
@@ -353,7 +353,7 @@ def get_args_from_file(result_path, ax, data_type):
     sampler_df = pd.read_csv(flat_sampler_path,
                                         names=params,
                                         skiprows=(burn_in - 1) * (n_walkers))
-    args = [SN_name, data_dict, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold]
+    args = [SN_name, data_dict, sampler_df, ranges_dict, n_walkers, ax, normalization, LumTthreshold, add_martinez]
     return args
 
 
@@ -363,13 +363,10 @@ def plot_result_fit(result_path, plot_types, ax, add_martinez=False):
     ranges_dict = import_ranges(run_params.columns.values, run_params)
     mcmc_snec.initialize_empty_models(ranges_dict)
     if 'lum' in plot_types:
-        args = get_args_from_file(result_path, ax, 'lum')
-        print(args)
-        args = args.append(add_martinez)
+        args = get_args_from_file(result_path, ax, 'lum', add_martinez)
         ax, log_likeli = plot_lum_with_fit(*args)
     if 'veloc' in plot_types:
-        args = get_args_from_file(result_path, ax, 'veloc')
-        args = args.append(add_martinez)
+        args = get_args_from_file(result_path, ax, 'veloc', add_martinez)
         ax, log_likeli =plot_veloc_with_fit(*args)
     if 'mag' in plot_types:
         args = get_args_from_file(result_path, ax, 'mag')
