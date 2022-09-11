@@ -203,33 +203,17 @@ def lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, results_d
 
 
 def lum_veloc_vs_martinez(SN_name, results_dir, output_dir):
-    fig, axs = plt.subplots(2, 3, sharey='row', figsize=(20, 12))
-
+    fig, axs = plt.subplots(2, 1, sharey='row', figsize=(20, 12))
     lum_veloc_name = SN_name + '_lum-veloc_csm-with_normalizedFalse_TreshLumFalse'
     lum_veloc_path = os.path.join(results_dir, lum_veloc_name)
-
-
-
-    lum_veloc_normalized_path = os.path.join(results_dir, lum_veloc_normalized_name)
-
-    pltsn.plot_result_fit(lum_path, 'lum', axs[0, 0])
-    pltsn.plot_result_fit(lum_veloc_path, 'lum', axs[0, 1])
-    pltsn.plot_result_fit(lum_veloc_normalized_path, 'lum', axs[0, 2])
-    pltsn.plot_result_fit(lum_path, 'veloc', axs[1, 0])
-    pltsn.plot_result_fit(lum_veloc_path, 'veloc', axs[1, 1])
-    pltsn.plot_result_fit(lum_veloc_normalized_path, 'veloc', axs[1, 2])
-
-    axs[0, 0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
-    axs[1, 0].set_ylabel('Expansion velocity (km/s)', fontsize=14)
-    axs[1, 0].set_xlabel('Rest-frame days from discovery', fontsize=14)
-    axs[1, 1].set_xlabel('Rest-frame days from discovery', fontsize=14)
-    axs[1, 2].set_xlabel('Rest-frame days from discovery', fontsize=14)
-
+    pltsn.plot_result_fit(lum_veloc_path, 'lum', axs[0], add_martinez=True)
+    pltsn.plot_result_fit(lum_veloc_path, 'veloc', axs[1], add_martinez=True)
+    axs[0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
+    axs[1].set_ylabel('Expansion velocity (km/s)', fontsize=14)
+    axs[1].set_xlabel('Rest-frame days from discovery', fontsize=14)
     plt.tight_layout()
-    fig.savefig(os.path.join(output_dir, SN_name + '_lum_veloc_comparison.png'))
+    fig.savefig(os.path.join(output_dir, SN_name + '_martinez_comparison.png'))
     return fig
-
-
 
 
 
@@ -309,7 +293,12 @@ def main(argv):
         lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, res_dir, step_dir)
     elif type_fig == 'lum-veloc-twostep_comparison':
         lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, res_dir, step_dir)
-
+    elif type_fig == 'martinez_comparison':
+        lum_veloc_vs_martinez(SN_name, res_dir, output_dir)
+    else:
+        print('figure type (-t) should be csm_comparison, lum-mag-veloc_comparison, lum-veloc-normalized_comparison, '
+              'lum-veloc-twostep_comparison, martinez_comparison, or any combination of lum, mag and veloc separated by'
+              ' a dash (-)')
 
 if __name__ == "__main__":
     main(sys.argv)
