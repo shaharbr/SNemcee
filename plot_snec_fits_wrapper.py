@@ -5,9 +5,21 @@ import plot_snec_fits
 import sys, getopt
 import datetime
 import numpy as np
+import pandas as pd
 
 
 time_now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+
+
+def add_likelihood_to_file(model_name, fit_type, likeli, output_dir):
+    filepath = os.path.join(output_dir, 'log_likelihoods.txt')
+    if not os.path.exists(filepath):
+        f = pd.DataFrame({'model_name':[], 'fit_type':[], 'log_likelihood':[]})
+        f.to_csv(filepath)
+    f = pd.read_csv(filepath)
+    f = f.append(pd.DataFrame({'model_name':model_name, 'fit_type':fit_type, 'log_likelihood':likeli}))
+    f.to_csv(filepath)
 
 
 def plot_single(fig_type, model_path, ax):
@@ -34,11 +46,10 @@ def composite_plot(SN_name, fig_type, fitting_type, csm, normalization, LumThres
     if num_subplots > 1:
         for i, f in enumerate(fig_types):
             axs[0], likeli = plot_single(f, model_path, axs[i])
-            np.savetxt(fig_type + '_' + model_name, likeli)
+            add_likelihood_to_file(model_name, fig_type, likeli, output_dir)
     else:
         axs, likeli = plot_single(fig_type, model_path, axs)
-        np.savetxt(fig_type + '_' + model_name, likeli)
-
+        add_likelihood_to_file(model_name, fig_type, likeli, output_dir)
     fig.savefig(os.path.join(output_dir, model_name + '_'+str(fig_type)+'_plot.png'))
     fig.savefig(os.path.join(output_dir, model_name + '_' + str(fig_type) + '_plot.pdf'))
 
@@ -63,9 +74,9 @@ def lum_wCSM_vs_woCSM(SN_name, fitting_type, normalization, LumThreshold, result
     lum_csmFalse_path = os.path.join(results_dir, lum_csmFalse_name)
 
     axs[0], likeli = plot_snec_fits.plot_result_fit(lum_csmTrue_path, 'lum', axs[0])
-    np.savetxt('lum_'+lum_csmTrue_name, likeli)
+    add_likelihood_to_file(lum_csmTrue_name, 'lum', likeli, output_dir)
     axs[1], likeli = plot_snec_fits.plot_result_fit(lum_csmFalse_path, 'lum', axs[1])
-    np.savetxt('lum_'+lum_csmFalse_name, likeli)
+    add_likelihood_to_file(lum_csmFalse_name, 'lum', likeli, output_dir)
 
     axs[0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[0].set_xlabel('Rest-frame days from discovery', fontsize=14)
@@ -89,17 +100,17 @@ def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, results
     lum_veloc_normalized_path = os.path.join(results_dir, lum_veloc_normalized_name)
 
     axs[0, 0], likeli = plot_snec_fits.plot_result_fit(lum_path, 'lum', axs[0, 0])
-    np.savetxt('lum_' + lum_name, likeli)
+    add_likelihood_to_file(lum_name, 'lum', likeli, output_dir)
     axs[0, 1], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'lum', axs[0, 1])
-    np.savetxt('lum_' + lum_veloc_name, likeli)
+    add_likelihood_to_file(lum_veloc_name, 'lum', likeli, output_dir)
     axs[0, 2], likeli = plot_snec_fits.plot_result_fit(lum_veloc_normalized_path, 'lum', axs[0, 2])
-    np.savetxt('lum_' + lum_veloc_normalized_name, likeli)
+    add_likelihood_to_file(lum_veloc_normalized_name, 'lum', likeli, output_dir)
     axs[1, 0], likeli = plot_snec_fits.plot_result_fit(lum_path, 'veloc', axs[1, 0])
-    np.savetxt('veloc_' + lum_name, likeli)
+    add_likelihood_to_file(lum_name, 'veloc', likeli, output_dir)
     axs[0, 1], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'veloc', axs[1, 1])
-    np.savetxt('veloc_' + lum_veloc_name, likeli)
+    add_likelihood_to_file(lum_veloc_name, 'veloc', likeli, output_dir)
     axs[0, 2], likeli = plot_snec_fits.plot_result_fit(lum_veloc_normalized_path, 'veloc', axs[1, 2])
-    np.savetxt('veloc_' + lum_veloc_normalized_name, likeli)
+    add_likelihood_to_file(lum_veloc_normalized_name, 'veloc', likeli, output_dir)
 
     axs[0, 0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[1, 0].set_ylabel('Expansion velocity (km/s)', fontsize=14)
@@ -116,6 +127,8 @@ def lum_vs_lum_veloc_vs_lum_veloc_normalized(SN_name, csm, LumThreshold, results
     return fig
 
 
+
+
 def lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, results_dir, output_dir):
     fig, axs = plt.subplots(3, 2, figsize=(20, 12))
 
@@ -127,17 +140,17 @@ def lum_veloc_vs_mag_veloc(SN_name, csm, normalization, LumThreshold, results_di
     mag_veloc_path = os.path.join(results_dir, mag_veloc_name)
 
     axs[0, 0], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'lum', axs[0, 0])
-    np.savetxt('lum_' + lum_veloc_name, likeli)
+    add_likelihood_to_file(lum_veloc_name, 'lum', likeli, output_dir)
     axs[0, 1], likeli = plot_snec_fits.plot_result_fit(mag_veloc_path, 'lum', axs[0, 1])
-    np.savetxt('lum_' + mag_veloc_name, likeli)
+    add_likelihood_to_file(mag_veloc_name, 'lum', likeli, output_dir)
     axs[1, 0], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'mag', axs[1, 0])
-    np.savetxt('mag_' + lum_veloc_name, likeli)
+    add_likelihood_to_file(lum_veloc_name, 'mag', likeli, output_dir)
     axs[1, 1], likeli = plot_snec_fits.plot_result_fit(mag_veloc_path, 'mag', axs[1, 1])
-    np.savetxt('mag_' + mag_veloc_name, likeli)
+    add_likelihood_to_file(mag_veloc_name, 'mag', likeli, output_dir)
     axs[2, 0], likeli = plot_snec_fits.plot_result_fit(lum_veloc_path, 'veloc', axs[2, 0])
-    np.savetxt('veloc_' + lum_veloc_name, likeli)
+    add_likelihood_to_file(lum_veloc_name, 'veloc', likeli, output_dir)
     axs[2, 1], likeli = plot_snec_fits.plot_result_fit(mag_veloc_path, 'veloc', axs[2, 1])
-    np.savetxt('veloc_' + mag_veloc_name, likeli)
+    add_likelihood_to_file(mag_veloc_name, 'veloc', likeli, output_dir)
 
     axs[0, 0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[1, 0].set_ylabel('Absolute Magnitude', fontsize=14)
@@ -171,18 +184,17 @@ def lum_veloc_onestep_vs_twostep(SN_name, normalization, LumThreshold, results_d
     twostep_priorTrue_path = os.path.join(results_dir, twostep_priorTrue_name)
 
     axs[0, 0], likeli = plot_snec_fits.plot_result_fit(onestep_path, 'lum', axs[0, 0])
-    np.savetxt('lum_' + onestep_name, likeli)
+    add_likelihood_to_file(onestep_name, 'lum', likeli, output_dir)
     axs[0, 1], likeli = plot_snec_fits.plot_result_fit(twostep_priorNone_path, 'lum', axs[0, 1])
-    np.savetxt('lum_' + twostep_priorNone_name, likeli)
+    add_likelihood_to_file(twostep_priorNone_name, 'lum', likeli, output_dir)
     axs[0, 2], likeli = plot_snec_fits.plot_result_fit(twostep_priorTrue_path, 'lum', axs[0, 2])
-    np.savetxt('lum_' + twostep_priorTrue_name, likeli)
+    add_likelihood_to_file(twostep_priorTrue_name, 'lum', likeli, output_dir)
     axs[1, 0], likeli = plot_snec_fits.plot_result_fit(onestep_path, 'veloc', axs[1, 0])
-    np.savetxt('veloc_' + onestep_name, likeli)
+    add_likelihood_to_file(onestep_name, 'veloc', likeli, output_dir)
     axs[1, 1], likeli = plot_snec_fits.plot_result_fit(twostep_priorNone_path, 'veloc', axs[1, 1])
-    np.savetxt('veloc_' + twostep_priorNone_name, likeli)
+    add_likelihood_to_file(twostep_priorNone_name, 'veloc', likeli, output_dir)
     axs[1, 2], likeli = plot_snec_fits.plot_result_fit(twostep_priorTrue_path, 'veloc', axs[1, 2])
-    np.savetxt('veloc_' + twostep_priorTrue_name, likeli)
-
+    add_likelihood_to_file(twostep_priorTrue_name, 'veloc', likeli, output_dir)
 
     axs[0, 0].set_ylabel('Log bolometric luminosity (erg/s)', fontsize=14)
     axs[1, 0].set_ylabel('Expansion velocity (km/s)', fontsize=14)
