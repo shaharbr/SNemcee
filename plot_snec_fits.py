@@ -95,9 +95,10 @@ def open_reshape_3d_array(output_dir, type, step):
 def add_model_martinez(SN_name, ranges_dict, x_data, y_data, dy_data, fig_type, ax):
     martinez_path = os.path.join('SN_data', 'martinez_results_table.csv')
     martinez_df = pd.read_csv(martinez_path)
-    results_row = martinez_df.loc[martinez_df['SN'] == SN_name]
+    results_row = martinez_df.loc[martinez_df['SN'] == SN_name][0]
     log_likeli = []
-    requested = [int(results_row[a]) for a in ['Mzams','Ni','E','R','K','Mix','S','T']]
+    requested = [results_row[a] for a in ['Mzams','Ni','E','R','K','Mix','S','T']]
+    print(requested)
     S = requested[6]
     T = requested[7]
     data_x_moved = x_data - T
